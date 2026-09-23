@@ -412,15 +412,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const speed = document.getElementById('ab-speed'), speedVal = document.getElementById('ab-speed-val');
     speed.addEventListener('input', () => speedVal.textContent = Number(speed.value).toFixed(2)+'x');
 
+    /* Real client-side PDF text extraction via Mozilla's pdf.js (CDN, free, no backend). */
+    let pdfjsLibPromise = null;
+    function loadPdfJs(){
+      if (!pdfjsLibPromise){
+        pdfjsLibPromise = import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.3.289/pdf.min.mjs')
+          .then((lib) => {
+            lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.3.289/pdf.worker.min.mjs';
+            return lib;
+          });
+      }
+      return pdfjsLibPromise;
+    }
+    async function extractPdfText(file){
+      const pdfjsLib = await loadPdfJs();
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      let text = '';
+      for (let i = 1; i <= pdf.numPages; i++){
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(it => it.str).join(' ') + '\n\n';
+      }
+      return text.trim();
+    }
+
     document.getElementById('ab-file').addEventListener('change', async (e) => {
       const f = e.target.files[0];
       if (!f) return;
-      if (f.type === 'text/plain' || f.name.endsWith('.txt')){
+      const isPdf = f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+      const isTxt = f.type === 'text/plain' || f.name.toLowerCase().endsWith('.txt');
+      if (isTxt){
         const text = await f.text();
         document.getElementById('ab-text').value = text;
         VSUi.toast('Loaded ' + f.name, 'success');
+      } else if (isPdf){
+        VSUi.toast('Extracting text from PDF…', 'info', 6000);
+        try {
+          const text = await extractPdfText(f);
+          if (!text){
+            VSUi.toast('No selectable text found — this PDF may be scanned images rather than real text.', 'error', 5500);
+            return;
+          }
+          document.getElementById('ab-text').value = text;
+          VSUi.toast('Extracted text from ' + f.name, 'success');
+        } catch (err){
+          VSUi.toast('Could not read this PDF. Try a different file, or copy/paste the text directly.', 'error', 5000);
+        }
       } else {
-        VSUi.toast('PDF/DOCX uploaded: ' + f.name + '. Text extraction requires a connected backend — paste text directly for now.', 'info', 4500);
+        VSUi.toast('DOCX uploaded: ' + f.name + '. DOCX text extraction needs a connected backend — convert to PDF or TXT first, or paste text directly.', 'info', 5500);
       }
     });
 
@@ -436,12 +476,21 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="chapter-title">${VSUi.escapeHtml(c.title)}</div>
             <div class="chapter-meta">${c.body.split(/\s+/).length} words ${c.durationSec ? '· ' + VSAudio.fmtTime(c.durationSec) + ' generated' : '· not generated'}</div>
           </div>
-          <div style="display:flex;gap:6px;">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-sm btn-teal ab-listen-btn" data-idx="${i}">🔊 Listen (free)</button>
             <button class="btn btn-sm ab-preview-btn" data-idx="${i}" ${c.audioUrl?'':'disabled'}>Preview</button>
             <button class="btn btn-sm ab-gen-btn" data-idx="${i}">${c.audioUrl?'Regenerate':'Generate'}</button>
             <button class="btn btn-sm btn-ghost ab-download-btn" data-idx="${i}" ${c.audioUrl?'':'disabled'}>Download</button>
           </div>
         </div>`).join('');
+      listRoot.querySelectorAll('.ab-listen-btn').forEach(b => b.addEventListener('click', () => {
+        const c = chapters[b.dataset.idx];
+        VSTtsService.speakPreview({
+          text: c.body, rate: Number(speed.value),
+          lang: document.getElementById('ab-lang').value === 'Hindi' ? 'hi-IN' : 'en-US'
+        });
+        VSUi.toast('Reading chapter aloud using your browser\u2019s built-in voice — real audio, free, no provider needed.', 'info', 4000);
+      }));
       listRoot.querySelectorAll('.ab-preview-btn').forEach(b => b.addEventListener('click', () => {
         const c = chapters[b.dataset.idx]; if (c.audioUrl){ new Audio(c.audioUrl).play().catch(()=>{}); }
       }));
@@ -466,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('ab-split-btn').addEventListener('click', () => {
       const text = document.getElementById('ab-text').value;
       chapters = VSAudiobookService.splitIntoChapters(text);
-      if (!chapters.length){ VSUi.toast('Paste manuscript text or upload a .txt file first.','error'); return; }
+      if (!chapters.length){ VSUi.toast('Paste manuscript text or upload a .txt/.pdf file first.','error'); return; }
       renderChapters();
       VSUi.toast(`Split into ${chapters.length} chapter${chapters.length>1?'s':''}`, 'success');
     });
