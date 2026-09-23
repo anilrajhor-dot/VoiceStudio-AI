@@ -415,6 +415,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // REAL free listen: reads the script aloud using the browser's own voices, alternating
     // a different voice per HOST so a 2-host script actually sounds like a conversation.
+    const podPauseBtn = document.getElementById('pod-pause-btn');
+    const podStopBtn = document.getElementById('pod-stop-btn');
+    function showPodReadingControls(){ podPauseBtn.style.display = 'inline-flex'; podPauseBtn.textContent = '⏸ Pause'; podStopBtn.style.display = 'inline-flex'; }
+    function hidePodReadingControls(){ podPauseBtn.style.display = 'none'; podStopBtn.style.display = 'none'; podPauseBtn.textContent = '⏸ Pause'; }
+    podPauseBtn.addEventListener('click', () => {
+      if (!('speechSynthesis' in window)) return;
+      if (window.speechSynthesis.speaking && !window.speechSynthesis.paused){
+        window.speechSynthesis.pause(); podPauseBtn.textContent = '▶ Resume';
+      } else if (window.speechSynthesis.paused){
+        window.speechSynthesis.resume(); podPauseBtn.textContent = '⏸ Pause';
+      }
+    });
+    podStopBtn.addEventListener('click', () => { window.speechSynthesis.cancel(); hidePodReadingControls(); });
+
     document.getElementById('pod-listen-btn').addEventListener('click', () => {
       const script = scriptOut.value.trim();
       if (!script){ VSUi.toast('Generate or write a script first.','error'); return; }
@@ -431,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let i = 0;
         let liveUtterance = null; // keep a live reference — Safari can garbage-collect an unreferenced utterance mid-speech
         function speakNext(){
-          if (i >= queue.length) { liveUtterance = null; return; }
+          if (i >= queue.length) { liveUtterance = null; hidePodReadingControls(); return; }
           const line = queue[i++];
           const m = line.match(/^([A-Za-z0-9 ]+):\s*(.*)$/);
           const speaker = m ? m[1] : '';
@@ -446,6 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         window.speechSynthesis.resume();
         speakNext();
+        showPodReadingControls();
       }, 60);
       VSUi.toast('Reading the script aloud with your browser\u2019s voices — real audio, free, alternating by speaker.', 'info', 4000);
     });
@@ -513,6 +528,25 @@ document.addEventListener('DOMContentLoaded', () => {
     let chapters = [];
     const listRoot = document.getElementById('ab-chapter-list');
     const combineBtn = document.getElementById('ab-combine-btn');
+    const abPauseBtn = document.getElementById('ab-pause-btn');
+    const abStopBtn = document.getElementById('ab-stop-btn');
+
+    function showReadingControls(){
+      abPauseBtn.style.display = 'inline-flex'; abPauseBtn.textContent = '⏸ Pause';
+      abStopBtn.style.display = 'inline-flex';
+    }
+    function hideReadingControls(){
+      abPauseBtn.style.display = 'none'; abStopBtn.style.display = 'none'; abPauseBtn.textContent = '⏸ Pause';
+    }
+    abPauseBtn.addEventListener('click', () => {
+      if (!('speechSynthesis' in window)) return;
+      if (window.speechSynthesis.speaking && !window.speechSynthesis.paused){
+        window.speechSynthesis.pause(); abPauseBtn.textContent = '▶ Resume';
+      } else if (window.speechSynthesis.paused){
+        window.speechSynthesis.resume(); abPauseBtn.textContent = '⏸ Pause';
+      }
+    });
+    abStopBtn.addEventListener('click', () => { VSTtsService.stopPreview(); hideReadingControls(); });
 
     function renderChapters(){
       if (!chapters.length){ listRoot.innerHTML = `<div class="empty-state">Split your manuscript to see chapters here.</div>`; combineBtn.disabled = true; return; }
@@ -533,8 +567,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const c = chapters[b.dataset.idx];
         VSTtsService.speakPreview({
           text: c.body, rate: Number(speed.value),
-          lang: document.getElementById('ab-lang').value === 'Hindi' ? 'hi-IN' : 'en-US'
+          lang: document.getElementById('ab-lang').value === 'Hindi' ? 'hi-IN' : 'en-US',
+          onEnd: hideReadingControls
         });
+        showReadingControls();
         VSUi.toast('Reading chapter aloud using your browser\u2019s built-in voice — real audio, free, no provider needed.', 'info', 4000);
       }));
       listRoot.querySelectorAll('.ab-preview-btn').forEach(b => b.addEventListener('click', () => {

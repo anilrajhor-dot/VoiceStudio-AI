@@ -420,6 +420,8 @@
             <button class="btn" id="pod-script-btn">Generate Script</button>
             <button class="btn btn-teal" id="pod-audio-btn">Generate Audio</button>
             <button class="btn" id="pod-listen-btn">🔊 Listen (free)</button>
+            <button class="btn" id="pod-pause-btn" style="display:none;">⏸ Pause</button>
+            <button class="btn" id="pod-stop-btn" style="display:none;">⏹ Stop</button>
           </div>
         </div>
 
@@ -461,9 +463,13 @@
         </div>
 
         <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <h3 style="font-size:14px;">Chapters</h3>
-            <button class="btn btn-sm btn-teal" id="ab-generate-all-btn">Generate All</button>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+            <h3 style="font-size:14px;margin:0;">Chapters</h3>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-sm" id="ab-pause-btn" style="display:none;">⏸ Pause</button>
+              <button class="btn btn-sm" id="ab-stop-btn" style="display:none;">⏹ Stop</button>
+              <button class="btn btn-sm btn-teal" id="ab-generate-all-btn">Generate All</button>
+            </div>
           </div>
           <div id="ab-chapter-list"><div class="empty-state">Split your manuscript to see chapters here.</div></div>
           <button class="btn btn-block" id="ab-combine-btn" style="margin-top:14px;" disabled>Combine Chapters into Audiobook</button>
