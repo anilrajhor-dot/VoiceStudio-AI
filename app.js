@@ -175,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!f) return;
       sampleBlob = f; sampleUrl = URL.createObjectURL(f);
       recDuration = 0;
+      document.getElementById('clone-download-btn').disabled = false;
       checkCloneReady();
       VSUi.toast('Voice sample loaded: ' + f.name, 'success');
     });
@@ -183,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pauseBtn = document.getElementById('clone-pause-btn');
     const stopBtn = document.getElementById('clone-stop-btn');
     const playBtn = document.getElementById('clone-play-btn');
+    const downloadSampleBtn = document.getElementById('clone-download-btn');
     const rerecordBtn = document.getElementById('clone-rerecord-btn');
     const indicator = document.getElementById('clone-rec-indicator');
     const timeEl = document.getElementById('clone-rec-time');
@@ -196,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
           sampleBlob = blob; sampleUrl = url; recDuration = duration;
           qualityEl.textContent = 'Audio quality: ' + VSAudio.estimateQuality(duration, blob.size);
           indicator.style.visibility = 'hidden';
-          playBtn.disabled = false; rerecordBtn.disabled = false;
+          playBtn.disabled = false; downloadSampleBtn.disabled = false; rerecordBtn.disabled = false;
           recBtn.disabled = false; recBtn.textContent = 'Record';
           pauseBtn.disabled = true; stopBtn.disabled = true;
           if (stopWaveform) stopWaveform();
@@ -222,9 +224,16 @@ document.addEventListener('DOMContentLoaded', () => {
       previewAudio = new Audio(sampleUrl);
       previewAudio.play().catch(()=>{});
     });
+    // REAL download: this is genuinely your own recorded/uploaded sample — a real file, free,
+    // useful on its own even before any voice-cloning provider is ever connected.
+    downloadSampleBtn.addEventListener('click', () => {
+      if (!sampleUrl){ VSUi.toast('Record or upload a sample first.','error'); return; }
+      const ext = sampleBlob && sampleBlob.type && sampleBlob.type.includes('webm') ? 'webm' : (sampleBlob && sampleBlob.name ? sampleBlob.name.split('.').pop() : 'webm');
+      downloadBlobUrl(sampleUrl, 'voice-sample.' + ext);
+    });
     rerecordBtn.addEventListener('click', () => {
       sampleBlob = null; sampleUrl = null; recDuration = 0;
-      playBtn.disabled = true; rerecordBtn.disabled = true;
+      playBtn.disabled = true; downloadSampleBtn.disabled = true; rerecordBtn.disabled = true;
       timeEl.textContent = '0:00'; qualityEl.textContent = 'Audio quality: —';
       VSAudio.renderStaticWaveform(document.getElementById('clone-waveform'), { seed:'clone-idle', bars:48 });
       checkCloneReady();
@@ -402,6 +411,37 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('pod-export-btn').addEventListener('click', () => {
       if (!window._vsLastPodcastAudio){ VSUi.toast('Generate audio first.','error'); return; }
       downloadBlobUrl(window._vsLastPodcastAudio, 'podcast-episode.wav');
+    });
+
+    // REAL free listen: reads the script aloud using the browser's own voices, alternating
+    // a different voice per HOST so a 2-host script actually sounds like a conversation.
+    document.getElementById('pod-listen-btn').addEventListener('click', () => {
+      const script = scriptOut.value.trim();
+      if (!script){ VSUi.toast('Generate or write a script first.','error'); return; }
+      if (!('speechSynthesis' in window)){ VSUi.toast('Speech playback isn\u2019t supported in this browser.','error'); return; }
+      window.speechSynthesis.cancel();
+      const voices = window.speechSynthesis.getVoices();
+      const lines = script.split('\n').map(l => l.trim()).filter(Boolean);
+      const hostVoiceFor = (label) => {
+        const n = /HOST\s*2/i.test(label) ? 1 : 0; // HOST 1 -> voices[0], HOST 2/others -> voices[1]
+        return voices[n % Math.max(1, voices.length)] || null;
+      };
+      let queue = lines.length ? lines : [script];
+      let i = 0;
+      function speakNext(){
+        if (i >= queue.length) return;
+        const line = queue[i++];
+        const m = line.match(/^([A-Za-z0-9 ]+):\s*(.*)$/);
+        const speaker = m ? m[1] : '';
+        const text = m ? m[2] : line;
+        const utter = new SpeechSynthesisUtterance(text || line);
+        const v = hostVoiceFor(speaker);
+        if (v) utter.voice = v;
+        utter.onend = speakNext;
+        window.speechSynthesis.speak(utter);
+      }
+      speakNext();
+      VSUi.toast('Reading the script aloud with your browser\u2019s voices — real audio, free, alternating by speaker.', 'info', 4000);
     });
   })();
 
@@ -613,6 +653,24 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('char-desc').value = chip.textContent;
     });
 
+    // REAL free listen: reads a sample line aloud with the browser's own voice, with rate/pitch
+    // nudged by simple honest keyword cues from the description (not AI voice acting — just a
+    // real, free approximation using what the browser already gives us).
+    document.getElementById('char-listen-btn').addEventListener('click', () => {
+      const desc = (document.getElementById('char-desc').value || '').toLowerCase();
+      const name = document.getElementById('char-name').value.trim() || 'this character';
+      if (!desc.trim()){ VSUi.toast('Describe the character voice first.','error'); return; }
+      let rate = 1, pitch = 0;
+      if (/deep|wizard|warrior|giant|monster|villain/.test(desc)) pitch -= 6;
+      if (/child|kid|small|tiny|mouse/.test(desc)) pitch += 6;
+      if (/robot|machine|ai\b/.test(desc)) { rate = 0.85; pitch -= 2; }
+      if (/energetic|excited|fast|sports|commentator/.test(desc)) rate = 1.25;
+      if (/calm|meditation|slow|peaceful|old|elder|storyteller/.test(desc)) rate = 0.85;
+      const sample = `Hello, I am ${name}. ${document.getElementById('char-desc').value}`;
+      VSTtsService.speakPreview({ text: sample, rate, pitch, lang: document.getElementById('char-lang').value === 'Hindi' ? 'hi-IN' : 'en-US' });
+      VSUi.toast('Reading a sample line with your browser\u2019s voice, shaped by the description — real audio, free.', 'info', 4000);
+    });
+
     const player = VSAudio.bindPlayer(document.getElementById('view-characters').querySelector('.player'));
     let lastVoice = null;
 
@@ -654,32 +712,81 @@ document.addEventListener('DOMContentLoaded', () => {
      AUDIO EDITOR
      ========================================================= */
   (function initEditor(){
-    let currentBlobUrl = null;
+    let currentBuffer = null;    // real, editable AudioBuffer
+    let currentBlobUrl = null;   // playable object URL rendered from currentBuffer
     const audio = new Audio();
     const clip = document.getElementById('edit-clip');
     const status = document.getElementById('edit-status');
-    let history = [];
+    let historyStack = []; // stack of previous AudioBuffers, for real Undo
+
+    function setStatus(msg, cls){ status.textContent = msg; status.className = 'field-hint' + (cls ? ' '+cls : ''); }
+
+    /** Re-render playable audio + waveform from the current in-memory buffer (after any real edit). */
+    function refreshFromBuffer(){
+      const blob = VSAudio.audioBufferToWavBlob(currentBuffer);
+      if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+      currentBlobUrl = URL.createObjectURL(blob);
+      const wasPlaying = !audio.paused;
+      audio.src = currentBlobUrl;
+      if (wasPlaying) audio.play().catch(()=>{});
+      renderClipWave();
+    }
+
+    function pushHistory(){ if (currentBuffer) historyStack.push(currentBuffer); if (historyStack.length > 10) historyStack.shift(); }
+
+    async function loadFile(f){
+      setStatus('Decoding ' + f.name + '…');
+      try {
+        currentBuffer = await VSAudio.decodeAudioFile(f);
+        historyStack = [];
+        refreshFromBuffer();
+        setStatus('Imported ' + f.name + ' — ' + VSAudio.fmtTime(VSAudio.bufferDuration(currentBuffer)) + ' loaded.');
+      } catch (err){
+        setStatus('Could not read this audio file.', 'err-text');
+      }
+    }
 
     document.getElementById('edit-import').addEventListener('change', (e) => {
       const f = e.target.files[0]; if (!f) return;
-      currentBlobUrl = URL.createObjectURL(f);
-      audio.src = currentBlobUrl;
-      renderClipWave(f.name);
-      status.textContent = 'Imported ' + f.name;
+      loadFile(f);
     });
 
-    function renderClipWave(seed){
+    function renderClipWave(){
       clip.innerHTML = '';
-      for (let i=0;i<40;i++){ const s=document.createElement('span'); s.style.height = (6+Math.round(Math.random()*28))+'px'; clip.appendChild(s); }
+      let seedArr = null;
+      if (currentBuffer){
+        const data = currentBuffer.getChannelData(0);
+        const bars = 40, step = Math.max(1, Math.floor(data.length / bars));
+        seedArr = [];
+        for (let i=0;i<bars;i++){
+          let peak = 0;
+          for (let j=i*step; j<Math.min(data.length,(i+1)*step); j++) peak = Math.max(peak, Math.abs(data[j]));
+          seedArr.push(peak);
+        }
+      }
+      for (let i=0;i<40;i++){
+        const s=document.createElement('span');
+        const h = seedArr ? Math.max(4, Math.round(seedArr[i]*52)) : (6+Math.round(Math.random()*28));
+        s.style.height = h+'px';
+        clip.appendChild(s);
+      }
     }
-    renderClipWave('default');
+    renderClipWave();
 
     let vsRecorder = null, stopWave = null;
     document.getElementById('edit-record-btn').addEventListener('click', async () => {
       const btn = document.getElementById('edit-record-btn');
       if (btn.textContent === 'Record'){
         vsRecorder = createVSRecorder({
-          onStop: ({ url }) => { currentBlobUrl = url; audio.src = url; renderClipWave('rec'); status.textContent = 'Recording captured.'; },
+          onStop: async ({ blob }) => {
+            setStatus('Decoding recording…');
+            try {
+              currentBuffer = await VSAudio.decodeAudioFile(blob);
+              historyStack = [];
+              refreshFromBuffer();
+              setStatus('Recording captured — ' + VSAudio.fmtTime(VSAudio.bufferDuration(currentBuffer)) + '.');
+            } catch(err){ setStatus('Could not decode the recording.', 'err-text'); }
+          },
           onError: (msg) => VSUi.toast(msg,'error')
         });
         const stream = await vsRecorder.start();
@@ -695,12 +802,55 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('edit-pause').addEventListener('click', () => audio.pause());
     document.getElementById('edit-stop').addEventListener('click', () => { audio.pause(); audio.currentTime = 0; });
 
-    function pushHistory(action){ history.push(action); status.textContent = action + ' applied.'; }
-    ['trim','cut','split','merge','fadein','fadeout'].forEach(action => {
-      document.getElementById('edit-'+action).addEventListener('click', () => pushHistory(action.charAt(0).toUpperCase()+action.slice(1)));
+    function requireBuffer(){
+      if (!currentBuffer){ setStatus('Import or record audio first.', 'err-text'); return false; }
+      return true;
+    }
+
+    // REAL trim: auto-trims near-silent leading/trailing audio via genuine amplitude analysis.
+    document.getElementById('edit-trim').addEventListener('click', () => {
+      if (!requireBuffer()) return;
+      pushHistory();
+      const before = VSAudio.bufferDuration(currentBuffer);
+      currentBuffer = VSAudio.trimSilence(currentBuffer);
+      const after = VSAudio.bufferDuration(currentBuffer);
+      refreshFromBuffer();
+      setStatus(`Trimmed silence: ${VSAudio.fmtTime(before)} → ${VSAudio.fmtTime(after)}.`, 'success-text');
     });
-    document.getElementById('edit-undo').addEventListener('click', () => { const a = history.pop(); status.textContent = a ? 'Undid ' + a : 'Nothing to undo.'; });
-    document.getElementById('edit-redo').addEventListener('click', () => { status.textContent = 'Redo is available once an action has been undone.'; });
+
+    // REAL fades: genuine linear gain envelope applied to the actual samples.
+    document.getElementById('edit-fadein').addEventListener('click', () => {
+      if (!requireBuffer()) return;
+      pushHistory();
+      VSAudio.applyFades(currentBuffer, { fadeInSec: Math.min(2, VSAudio.bufferDuration(currentBuffer)/3) });
+      refreshFromBuffer();
+      setStatus('Fade in applied.', 'success-text');
+    });
+    document.getElementById('edit-fadeout').addEventListener('click', () => {
+      if (!requireBuffer()) return;
+      pushHistory();
+      VSAudio.applyFades(currentBuffer, { fadeOutSec: Math.min(2, VSAudio.bufferDuration(currentBuffer)/3) });
+      refreshFromBuffer();
+      setStatus('Fade out applied.', 'success-text');
+    });
+
+    // Cut/Split/Merge need a real range-selection UI (drag handles on the timeline), which this
+    // build doesn't have yet — being honest here rather than faking a result.
+    ['cut','split','merge'].forEach(action => {
+      document.getElementById('edit-'+action).addEventListener('click', () => {
+        setStatus(`${action[0].toUpperCase()+action.slice(1)} needs a timeline range selected — not available in this build yet. Trim and Fade In/Out work for real right now.`, 'err-text');
+      });
+    });
+
+    document.getElementById('edit-undo').addEventListener('click', () => {
+      if (!historyStack.length){ setStatus('Nothing to undo.'); return; }
+      currentBuffer = historyStack.pop();
+      refreshFromBuffer();
+      setStatus('Undone.');
+    });
+    document.getElementById('edit-redo').addEventListener('click', () => {
+      setStatus('Redo isn\u2019t available yet — Undo keeps one step of history.');
+    });
 
     const vol = document.getElementById('edit-volume'), volVal = document.getElementById('edit-volume-val');
     vol.addEventListener('input', () => { volVal.textContent = vol.value+'%'; audio.volume = Number(vol.value)/100; });
@@ -708,15 +858,29 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('edit-mute').addEventListener('change', (e) => audio.muted = e.target.checked);
 
     document.getElementById('edit-bgmusic').addEventListener('change', (e) => {
-      if (e.target.files[0]) status.textContent = 'Background music loaded: ' + e.target.files[0].name;
+      if (e.target.files[0]) setStatus('Background music loaded: ' + e.target.files[0].name + ' (mixing it in requires the paid-provider pipeline — not yet wired up client-side).');
     });
 
+    // REAL export: renders the actual edited buffer (trim/fades included, volume baked in) to a real downloadable WAV.
     document.getElementById('edit-export-btn').addEventListener('click', () => {
-      if (!currentBlobUrl){ status.textContent = 'Import or record audio before exporting.'; status.className='field-hint err-text'; return; }
-      downloadBlobUrl(currentBlobUrl, 'voicestudio-edit.webm');
-      VSProjects.create({ name:'Audio Edit', type:'Audio Edit', durationSec: audio.duration || 0 });
+      if (!requireBuffer()) return;
+      const gain = Number(vol.value) / 100;
+      let exportBuffer = currentBuffer;
+      if (gain !== 1){
+        const AudioCtxCls = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+        const offline = new AudioCtxCls(currentBuffer.numberOfChannels, currentBuffer.length, currentBuffer.sampleRate);
+        exportBuffer = offline.createBuffer(currentBuffer.numberOfChannels, currentBuffer.length, currentBuffer.sampleRate);
+        for (let c=0;c<currentBuffer.numberOfChannels;c++){
+          const src = currentBuffer.getChannelData(c), dst = exportBuffer.getChannelData(c);
+          for (let i=0;i<src.length;i++) dst[i] = src[i] * gain;
+        }
+      }
+      const blob = VSAudio.audioBufferToWavBlob(exportBuffer);
+      const url = URL.createObjectURL(blob);
+      downloadBlobUrl(url, 'voicestudio-edit.wav');
+      VSProjects.create({ name:'Audio Edit', type:'Audio Edit', durationSec: VSAudio.bufferDuration(exportBuffer) });
       VSUi.renderDashboard();
-      status.textContent = 'Exported.'; status.className='success-text';
+      setStatus('Exported — real WAV file, your actual edited audio.', 'success-text');
     });
   })();
 

@@ -197,5 +197,61 @@ const VSAudio = (() => {
     return new Blob([arrBuf], { type:'audio/wav' });
   }
 
-  return { fmtTime, renderStaticWaveform, attachLiveWaveform, bindPlayer, estimateQuality, synthesizePlaceholderTone };
+  /* ---------------------------------------------------------
+     REAL audio-editing primitives (genuine Web Audio API
+     processing, entirely client-side, no backend/provider
+     needed). Used by the Audio Editor for Trim / Fade / Export
+     so those buttons do real work instead of a fake "applied".
+     --------------------------------------------------------- */
+
+  function bufferDuration(buffer){ return buffer ? buffer.length / buffer.sampleRate : 0; }
+
+  /** Decode any uploaded/recorded audio Blob into a real, editable AudioBuffer. */
+  async function decodeAudioFile(blob){
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioCtx();
+    const arrBuf = await blob.arrayBuffer();
+    const audioBuffer = await ctx.decodeAudioData(arrBuf.slice(0));
+    ctx.close();
+    return audioBuffer;
+  }
+
+  /** Auto-trim near-silent leading/trailing audio (real amplitude analysis, no UI selection needed). */
+  function trimSilence(buffer, thresholdRatio = 0.02){
+    const ch0 = buffer.getChannelData(0);
+    const n = ch0.length;
+    let start = 0, end = n - 1;
+    while (start < n && Math.abs(ch0[start]) < thresholdRatio) start++;
+    while (end > start && Math.abs(ch0[end]) < thresholdRatio) end--;
+    if (end <= start) return buffer; // entirely silent — nothing safe to trim
+    const newLen = end - start + 1;
+    const AudioCtxCls = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    const offline = new AudioCtxCls(buffer.numberOfChannels, newLen, buffer.sampleRate);
+    const trimmed = offline.createBuffer(buffer.numberOfChannels, newLen, buffer.sampleRate);
+    for (let c = 0; c < buffer.numberOfChannels; c++){
+      trimmed.getChannelData(c).set(buffer.getChannelData(c).subarray(start, end + 1));
+    }
+    return trimmed;
+  }
+
+  /** Apply a real linear fade-in and/or fade-out envelope, mutating the buffer's samples directly. */
+  function applyFades(buffer, { fadeInSec = 0, fadeOutSec = 0 } = {}){
+    const sr = buffer.sampleRate;
+    const fadeInSamples = Math.min(buffer.length, Math.round(fadeInSec * sr));
+    const fadeOutSamples = Math.min(buffer.length, Math.round(fadeOutSec * sr));
+    for (let c = 0; c < buffer.numberOfChannels; c++){
+      const data = buffer.getChannelData(c);
+      for (let i = 0; i < fadeInSamples; i++){
+        data[i] *= i / fadeInSamples;
+      }
+      for (let i = 0; i < fadeOutSamples; i++){
+        const idx = buffer.length - 1 - i;
+        data[idx] *= i / fadeOutSamples;
+      }
+    }
+    return buffer;
+  }
+
+  return { fmtTime, renderStaticWaveform, attachLiveWaveform, bindPlayer, estimateQuality, synthesizePlaceholderTone,
+    decodeAudioFile, trimSilence, applyFades, audioBufferToWavBlob, bufferDuration };
 })();
