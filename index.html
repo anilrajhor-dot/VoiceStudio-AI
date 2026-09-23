@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VoiceStudio AI — Create Voices, Podcasts, Audiobooks, Dubbing & Music</title>
+<meta name="description" content="VoiceStudio AI is a complete AI audio creation workspace: text to speech, voice cloning, dubbing, podcasts, audiobooks, music and a browser audio editor.">
+<meta name="theme-color" content="#0E1015">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="responsive.css">
+</head>
+<body>
+
+<!-- =========================================================
+     LANDING (marketing entry — hides once "Start Creating" is used)
+     ========================================================= -->
+<section id="landing">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1A1200" stroke-width="2.4"><path d="M12 3v10.55a4 4 0 1 0 2 3.45V7h4V3z"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">VoiceStudio AI</div>
+      <div class="brand-sub">Your Complete AI Audio Studio</div>
+    </div>
+  </div>
+
+  <div class="hero-eyebrow">Create Voices • Podcasts • Audiobooks • Dubbing • Music</div>
+  <h1 class="landing-title">One workspace for everything your project needs to sound like.</h1>
+  <p class="landing-sub">Create voices, podcasts, audiobooks, dubbing and music from one powerful workspace — record, edit, generate and export, right in your browser.</p>
+
+  <div class="landing-cta">
+    <button class="btn btn-primary" id="landing-start" style="padding:12px 22px;font-size:14.5px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l16 9-16 9V3z"/></svg>
+      Start Creating
+    </button>
+    <button class="btn" id="landing-demo" style="padding:12px 22px;font-size:14.5px;">View Demo Mode</button>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3"/></svg><h3>Voice Cloning</h3><p>Record or upload a consented sample and reuse a voice across projects.</p></div>
+    <div class="feature-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15V9a1 1 0 0 1 1-1h3l5-4v16l-5-4H5a1 1 0 0 1-1-1z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg><h3>Text to Speech</h3><p>Turn a script into natural speech across dozens of languages and voices.</p></div>
+    <div class="feature-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6-5v18l-6-5H2V8h3z"/><path d="M15 9l6 6M21 9l-6 6"/></svg><h3>AI Dubbing</h3><p>Transcribe, translate and re-voice your content into another language.</p></div>
+    <div class="feature-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 8v8l7-4-7-4z"/></svg><h3>Podcasts</h3><p>Draft an outline, script a conversation, and generate a two-host episode.</p></div>
+    <div class="feature-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13z"/><path d="M6.5 17H20v3H6.5a2.5 2.5 0 0 1 0-3z"/></svg><h3>Audiobooks</h3><p>Paste or upload a manuscript and narrate it chapter by chapter.</p></div>
+    <div class="feature-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg><h3>AI Music</h3><p>Describe a mood and genre — get lyrics, structure and a generated track.</p></div>
+    <div class="feature-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"/><path d="M5 4c2 2 2 6-1 8M19 4c-2 2-2 6 1 8"/></svg><h3>Character Voices</h3><p>Describe a fictional voice and bring an original character to life.</p></div>
+    <div class="feature-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="10" width="2" height="4"/><rect x="7" y="6" width="2" height="12"/><rect x="11" y="3" width="2" height="18"/><rect x="15" y="8" width="2" height="8"/><rect x="19" y="11" width="2" height="3"/></svg><h3>Audio Editor</h3><p>Trim, split, fade and mix your recordings directly in the browser.</p></div>
+  </div>
+
+  <p style="margin-top:44px;font-size:11.5px;color:var(--text-faint);max-width:480px;">Runs fully in DEMO MODE until an AI provider is connected — see Settings → API Configuration. No API keys are ever stored in this page's code.</p>
+</section>
+
+<!-- =========================================================
+     APP SHELL
+     ========================================================= -->
+<div id="app-shell" style="display:none;">
+
+  <div class="sidebar-scrim" id="sidebar-scrim"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A1200" stroke-width="2.4"><path d="M12 3v10.55a4 4 0 1 0 2 3.45V7h4V3z"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">VoiceStudio</div>
+        <div class="brand-sub">AI Audio Studio</div>
+      </div>
+    </div>
+
+    <div class="nav-scroll">
+      <ul class="nav-list" id="primary-nav">
+        <li><button class="nav-link" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</button></li>
+        <li><button class="nav-link" data-view="voice-studio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3"/></svg>Voice Studio</button></li>
+        <li><button class="nav-link" data-view="tts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15V9a1 1 0 0 1 1-1h3l5-4v16l-5-4H5a1 1 0 0 1-1-1z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg>Text to Speech</button></li>
+        <li><button class="nav-link" data-view="cloning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M12 8v3M7 11h10a1 1 0 0 1 1 1v6M7 11a1 1 0 0 0-1 1v6"/><rect x="4" y="18" width="6" height="4" rx="1"/><rect x="14" y="18" width="6" height="4" rx="1"/></svg>Voice Cloning</button></li>
+        <li><button class="nav-link" data-view="dubbing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6-5v18l-6-5H2V8h3z"/><path d="M15 9l6 6M21 9l-6 6"/></svg>Dubbing</button></li>
+        <li><button class="nav-link" data-view="podcast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 8v8l7-4-7-4z"/></svg>Podcast Studio</button></li>
+        <li><button class="nav-link" data-view="audiobook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13z"/><path d="M6.5 17H20v3H6.5a2.5 2.5 0 0 1 0-3z"/></svg>Audiobook Studio</button></li>
+        <li><button class="nav-link" data-view="music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>Music Studio</button></li>
+        <li><button class="nav-link" data-view="characters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"/><path d="M5 4c2 2 2 6-1 8M19 4c-2 2-2 6 1 8"/></svg>Character Voices</button></li>
+        <li><button class="nav-link" data-view="editor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="10" width="2" height="4"/><rect x="7" y="6" width="2" height="12"/><rect x="11" y="3" width="2" height="18"/><rect x="15" y="8" width="2" height="8"/><rect x="19" y="11" width="2" height="3"/></svg>Audio Editor</button></li>
+      </ul>
+
+      <div class="nav-sep"></div>
+
+      <ul class="nav-list">
+        <li><button class="nav-link" data-view="projects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>My Projects</button></li>
+        <li><button class="nav-link" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 9 19.36a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.64 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.64 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.64a1.7 1.7 0 0 0 1-1.55V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.36 9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>Settings</button></li>
+      </ul>
+    </div>
+
+    <div class="sidebar-foot">
+      <div class="storage-meter"><span id="storage-label">Local storage · 0%</span></div>
+      <div class="storage-bar"><span id="storage-bar-fill" style="width:2%"></span></div>
+      <ul class="nav-list">
+        <li style="list-style:none;"><button class="nav-link" id="theme-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg><span id="theme-toggle-label">Dark Mode</span></button></li>
+      </ul>
+    </div>
+  </aside>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="icon-btn" id="menu-toggle" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+      <div>
+        <h1 id="view-title">Dashboard</h1>
+        <p id="view-subtitle">Create professional audio with AI</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="demo-pill" id="mode-pill"><span>DEMO MODE</span></span>
+      <button class="icon-btn" id="topbar-theme" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg></button>
+    </div>
+  </header>
+
+  <main id="view-root">
+
+    <!-- ============== DASHBOARD ============== -->
+    <section class="view active" id="view-dashboard">
+      <div class="hero-panel">
+        <div class="hero-eyebrow">Welcome back</div>
+        <h1>Create professional audio with AI</h1>
+        <p>Jump into a studio module, or pick up one of your recent projects below.</p>
+        <div class="quick-actions">
+          <button class="qa-btn" data-view="cloning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Create Voice</button>
+          <button class="qa-btn" data-view="tts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Generate Speech</button>
+          <button class="qa-btn" data-view="cloning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Clone Voice</button>
+          <button class="qa-btn" data-view="podcast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Create Podcast</button>
+          <button class="qa-btn" data-view="audiobook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Create Audiobook</button>
+          <button class="qa-btn" data-view="dubbing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Dub Audio</button>
+          <button class="qa-btn" data-view="music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Create Music</button>
+        </div>
+        <div class="wave-decor" id="hero-wave"></div>
+      </div>
+
+      <div class="section">
+        <div class="grid grid-4" id="stat-cards"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Recent Projects</h2>
+          <button class="btn btn-sm" data-view="projects">View all</button>
+        </div>
+        <div class="grid grid-3" id="recent-projects"></div>
+      </div>
+    </section>
+
+    <!-- ============== VOICE STUDIO (hub) ============== -->
+    <section class="view" id="view-voice-studio">
+      <div class="grid grid-3">
+        <div class="card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" width="22" height="22"><path d="M4 15V9a1 1 0 0 1 1-1h3l5-4v16l-5-4H5a1 1 0 0 1-1-1z"/></svg>
+          <h3 style="margin-top:10px;">Text to Speech</h3>
+          <p style="font-size:13px;">Turn a script into natural speech in 25+ languages.</p>
+          <button class="btn btn-sm" data-view="tts">Open</button>
+        </div>
+        <div class="card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" width="22" height="22"><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M12 8v3M7 11h10a1 1 0 0 1 1 1v6M7 11a1 1 0 0 0-1 1v6"/></svg>
+          <h3 style="margin-top:10px;">Voice Cloning</h3>
+          <p style="font-size:13px;">Record or upload a consented sample to build a reusable voice.</p>
+          <button class="btn btn-sm" data-view="cloning">Open</button>
+        </div>
+        <div class="card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" width="22" height="22"><path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"/></svg>
+          <h3 style="margin-top:10px;">Character Voices</h3>
+          <p style="font-size:13px;">Describe a fictional voice and bring it to life.</p>
+          <button class="btn btn-sm" data-view="characters">Open</button>
+        </div>
+      </div>
+      <div class="section" style="margin-top:22px;">
+        <div class="section-head"><h2>My Voices</h2></div>
+        <div class="grid grid-3" id="voice-studio-voices"></div>
+      </div>
+    </section>
+
+    <!-- ============== TEXT TO SPEECH ============== -->
+    <section class="view" id="view-tts">
+      <div class="workspace">
+        <div class="card">
+          <div class="field">
+            <label for="tts-text">Text</label>
+            <textarea id="tts-text" placeholder="Type or paste the script you want to turn into speech…">Welcome to VoiceStudio AI — create professional audio in minutes.</textarea>
+            <div class="field-hint"><span id="tts-charcount">0</span> characters</div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="tts-lang">Language</label>
+              <select id="tts-lang"></select>
+            </div>
+            <div class="field">
+              <label for="tts-voice">Voice</label>
+              <select id="tts-voice"></select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Voice category</label>
+            <div class="chip-select" id="tts-category">
+              <button class="chip active" data-cat="Narrator">Narrator</button>
+              <button class="chip" data-cat="Male">Male</button>
+              <button class="chip" data-cat="Female">Female</button>
+              <button class="chip" data-cat="Professional">Professional</button>
+              <button class="chip" data-cat="Friendly">Friendly</button>
+              <button class="chip" data-cat="News">News</button>
+              <button class="chip" data-cat="Teacher">Teacher</button>
+              <button class="chip" data-cat="Child">Child</button>
+              <button class="chip" data-cat="Character">Character</button>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Speed <span class="slider-val" id="tts-speed-val">1.0x</span></label>
+              <input type="range" id="tts-speed" min="0.5" max="2" step="0.05" value="1">
+            </div>
+            <div class="field">
+              <label>Pitch <span class="slider-val" id="tts-pitch-val">0</span></label>
+              <input type="range" id="tts-pitch" min="-10" max="10" step="1" value="0">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Volume <span class="slider-val" id="tts-volume-val">100%</span></label>
+              <input type="range" id="tts-volume" min="0" max="100" step="1" value="100">
+            </div>
+            <div class="field">
+              <label for="tts-emotion">Emotion</label>
+              <select id="tts-emotion">
+                <option>Neutral</option><option>Happy</option><option>Sad</option><option>Excited</option><option>Calm</option><option>Serious</option><option>Empathetic</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="tts-pause">Pause between sentences (ms)</label>
+            <input type="number" id="tts-pause" value="250" min="0" max="3000" step="50">
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="tts-generate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l16 9-16 9V3z"/></svg>Generate Speech</button>
+            <button class="btn" id="tts-preview">Preview</button>
+            <button class="btn btn-ghost" id="tts-add-project">Add to Project</button>
+          </div>
+          <p id="tts-status" class="field-hint" style="margin-top:10px;"></p>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:14px;">Output</h3>
+          <p style="font-size:12.5px;">Preview uses your browser's built-in speech engine. <span class="badge badge-demo">DEMO MODE</span> exported audio requires a connected TTS provider — see Settings.</p>
+          <div class="player" id="tts-player">
+            <button class="player-play" id="tts-player-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+            <div class="player-mid">
+              <div class="player-track"><span></span></div>
+              <div class="player-times"><span>0:00</span><span>0:00</span></div>
+            </div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:8px;">
+            <button class="btn btn-sm" id="tts-download">Download</button>
+            <select class="player-speed" id="tts-player-speed"><option value="0.5">0.5x</option><option value="0.75">0.75x</option><option value="1" selected>1x</option><option value="1.25">1.25x</option><option value="1.5">1.5x</option><option value="2">2x</option></select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== VOICE CLONING ============== -->
+    <section class="view" id="view-cloning">
+      <div class="workspace">
+        <div class="card">
+          <div class="card" style="background:var(--amber-wash);border-color:rgba(255,176,32,.25);margin-bottom:18px;">
+            <strong style="color:var(--amber);font-size:13.2px;">Only clone a voice when you have the speaker's permission.</strong>
+            <p style="margin:6px 0 0;font-size:12.6px;">Cloning someone's voice without consent can enable impersonation and fraud. VoiceStudio AI will not create a voice profile until consent is confirmed below.</p>
+          </div>
+
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="upload">Upload audio</button>
+            <button class="tab-btn" data-tab="record">Record voice</button>
+          </div>
+
+          <div id="clone-tab-upload">
+            <div class="field">
+              <label for="clone-file">Voice sample (audio file)</label>
+              <input type="file" id="clone-file" accept="audio/*">
+              <div class="field-hint">Clear speech, minimal background noise, at least 30 seconds recommended.</div>
+            </div>
+          </div>
+
+          <div id="clone-tab-record" style="display:none;">
+            <div class="waveform" id="clone-waveform"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0;">
+              <span class="rec-indicator" id="clone-rec-indicator" style="visibility:hidden;"><span class="rec-dot"></span>Recording <span id="clone-rec-time">0:00</span></span>
+              <span class="field-hint" id="clone-quality">Audio quality: —</span>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-primary" id="clone-record-btn">Record</button>
+              <button class="btn" id="clone-pause-btn" disabled>Pause</button>
+              <button class="btn" id="clone-stop-btn" disabled>Stop</button>
+              <button class="btn" id="clone-play-btn" disabled>Play</button>
+              <button class="btn btn-ghost" id="clone-rerecord-btn" disabled>Re-record</button>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:18px;">
+            <label for="clone-name">Voice name</label>
+            <input type="text" id="clone-name" placeholder="e.g. Anil — Field Training Voice">
+          </div>
+          <div class="field">
+            <label for="clone-desc">Voice description</label>
+            <textarea id="clone-desc" placeholder="Warm, clear, mid-pitch narrator voice…" style="min-height:70px;"></textarea>
+          </div>
+          <div class="field">
+            <label for="clone-lang">Language</label>
+            <select id="clone-lang"></select>
+          </div>
+
+          <div class="checkbox-row" style="margin-bottom:16px;">
+            <input type="checkbox" id="clone-consent">
+            <label for="clone-consent">I confirm I have the speaker's explicit permission to create an AI voice clone from this sample, and I will not use it to impersonate or deceive anyone.</label>
+          </div>
+
+          <button class="btn btn-primary btn-block" id="clone-create-btn" disabled>Create Voice</button>
+          <p id="clone-status" class="field-hint" style="margin-top:10px;"></p>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:14px;">My Voices</h3>
+          <div class="grid" style="grid-template-columns:1fr;" id="clone-voice-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== DUBBING ============== -->
+    <section class="view" id="view-dubbing">
+      <div class="workspace">
+        <div class="card">
+          <div class="field">
+            <label for="dub-file">Upload audio or video</label>
+            <input type="file" id="dub-file" accept="audio/*,video/*">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="dub-source-lang">Detected source language</label>
+              <select id="dub-source-lang"><option>Auto-detect</option></select>
+            </div>
+            <div class="field">
+              <label for="dub-target-lang">Target language</label>
+              <select id="dub-target-lang"></select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="dub-voice">Target voice</label>
+            <select id="dub-voice"></select>
+          </div>
+          <button class="btn btn-primary btn-block" id="dub-start-btn">Start Dubbing</button>
+
+          <div class="section" style="margin-top:22px;">
+            <h3 style="font-size:14px;margin-bottom:10px;">Progress</h3>
+            <div class="step-list" id="dub-steps">
+              <div class="step-item" data-step="upload"><div class="step-dot">1</div><div class="step-label">Uploading</div></div>
+              <div class="step-item" data-step="transcribe"><div class="step-dot">2</div><div class="step-label">Transcribing</div></div>
+              <div class="step-item" data-step="translate"><div class="step-dot">3</div><div class="step-label">Translating</div></div>
+              <div class="step-item" data-step="voice"><div class="step-dot">4</div><div class="step-label">Generating voice</div></div>
+              <div class="step-item" data-step="sync"><div class="step-dot">5</div><div class="step-label">Synchronising</div></div>
+              <div class="step-item" data-step="final"><div class="step-dot">6</div><div class="step-label">Finalising</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:14px;">Original</h3>
+          <p class="field-hint" id="dub-original-text">No file uploaded yet.</p>
+          <h3 style="font-size:14px;margin-top:18px;">Translated script</h3>
+          <textarea id="dub-translated-text" readonly style="min-height:110px;" placeholder="Appears after translation…"></textarea>
+          <h3 style="font-size:14px;margin-top:18px;">Dubbed audio</h3>
+          <div class="player">
+            <button class="player-play" id="dub-player-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+            <div class="player-mid"><div class="player-track"><span></span></div><div class="player-times"><span>0:00</span><span>0:00</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== PODCAST STUDIO ============== -->
+    <section class="view" id="view-podcast">
+      <div class="workspace">
+        <div class="card">
+          <div class="field"><label for="pod-title">Podcast title</label><input type="text" id="pod-title" placeholder="e.g. Rural Credit Weekly"></div>
+          <div class="field"><label for="pod-topic">Topic</label><input type="text" id="pod-topic" placeholder="e.g. How SHGs access working capital loans"></div>
+          <div class="field"><label for="pod-desc">Description</label><textarea id="pod-desc" style="min-height:70px;" placeholder="What is this episode about?"></textarea></div>
+          <div class="field-row">
+            <div class="field"><label for="pod-duration">Duration (minutes)</label><input type="number" id="pod-duration" value="10" min="1" max="120"></div>
+            <div class="field"><label for="pod-lang">Language</label><select id="pod-lang"></select></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="pod-speakers">Number of speakers</label><select id="pod-speakers"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option></select></div>
+            <div class="field"><label for="pod-audience">Audience</label><input type="text" id="pod-audience" placeholder="e.g. SHG field staff"></div>
+          </div>
+          <div class="field">
+            <label>Style</label>
+            <div class="chip-select" id="pod-style">
+              <button class="chip active" data-cat="Interview">Interview</button>
+              <button class="chip" data-cat="Discussion">Discussion</button>
+              <button class="chip" data-cat="Educational">Educational</button>
+              <button class="chip" data-cat="Storytelling">Storytelling</button>
+              <button class="chip" data-cat="News">News</button>
+              <button class="chip" data-cat="Debate">Debate</button>
+              <button class="chip" data-cat="Explainer">Explainer</button>
+              <button class="chip" data-cat="Conversational">Conversational</button>
+            </div>
+          </div>
+          <div class="field"><label for="pod-tone">Tone</label><input type="text" id="pod-tone" placeholder="e.g. warm, practical, encouraging"></div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="pod-outline-btn">Generate Outline</button>
+            <button class="btn" id="pod-script-btn">Generate Script</button>
+            <button class="btn btn-teal" id="pod-audio-btn">Generate Audio</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div id="pod-speaker-cards" class="grid" style="grid-template-columns:1fr 1fr;margin-bottom:16px;"></div>
+          <h3 style="font-size:14px;">Outline / Script</h3>
+          <textarea id="pod-script-output" style="min-height:220px;" placeholder="Your outline or script will appear here — edit freely before generating audio."></textarea>
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button class="btn btn-sm" id="pod-regen-btn">Regenerate Section</button>
+            <button class="btn btn-sm btn-ghost" id="pod-export-btn">Export MP3 / WAV</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== AUDIOBOOK STUDIO ============== -->
+    <section class="view" id="view-audiobook">
+      <div class="workspace">
+        <div class="card">
+          <div class="field"><label for="ab-title">Title</label><input type="text" id="ab-title" placeholder="Book title"></div>
+          <div class="field-row">
+            <div class="field"><label for="ab-author">Author</label><input type="text" id="ab-author" placeholder="Author name"></div>
+            <div class="field"><label for="ab-narrator">Narrator voice</label><select id="ab-narrator"></select></div>
+          </div>
+          <div class="field">
+            <label for="ab-text">Manuscript text</label>
+            <textarea id="ab-text" style="min-height:160px;" placeholder="Paste your manuscript text here, or upload a file below…"></textarea>
+          </div>
+          <div class="field">
+            <label for="ab-file">Upload TXT / PDF / DOCX</label>
+            <input type="file" id="ab-file" accept=".txt,.pdf,.doc,.docx">
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Speed <span class="slider-val" id="ab-speed-val">1.0x</span></label><input type="range" id="ab-speed" min="0.5" max="2" step="0.05" value="1"></div>
+            <div class="field"><label for="ab-lang">Language</label><select id="ab-lang"></select></div>
+          </div>
+          <div class="field"><label for="ab-pause">Pause between paragraphs (ms)</label><input type="number" id="ab-pause" value="500" min="0" max="4000" step="50"></div>
+          <button class="btn btn-primary btn-block" id="ab-split-btn">Split into Chapters</button>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <h3 style="font-size:14px;">Chapters</h3>
+            <button class="btn btn-sm btn-teal" id="ab-generate-all-btn">Generate All</button>
+          </div>
+          <div id="ab-chapter-list"><div class="empty-state">Split your manuscript to see chapters here.</div></div>
+          <button class="btn btn-block" id="ab-combine-btn" style="margin-top:14px;" disabled>Combine Chapters into Audiobook</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== MUSIC STUDIO ============== -->
+    <section class="view" id="view-music">
+      <div class="tabs">
+        <button class="tab-btn active" data-mtab="music">Music</button>
+        <button class="tab-btn" data-mtab="lyrics">Lyric Generator</button>
+      </div>
+
+      <div id="music-tab-music" class="workspace">
+        <div class="card">
+          <div class="field"><label for="mus-desc">Song description</label><textarea id="mus-desc" style="min-height:80px;" placeholder="e.g. An uplifting acoustic song about financial independence for rural women"></textarea></div>
+          <div class="field-row">
+            <div class="field"><label for="mus-genre">Genre</label><select id="mus-genre"></select></div>
+            <div class="field"><label for="mus-mood">Mood</label><select id="mus-mood"></select></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="mus-tempo">Tempo (BPM) <span class="slider-val" id="mus-tempo-val">100</span></label><input type="range" id="mus-tempo" min="50" max="180" step="1" value="100"></div>
+            <div class="field"><label for="mus-duration">Duration (seconds)</label><input type="number" id="mus-duration" value="60" min="10" max="600"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="mus-lang">Language</label><select id="mus-lang"></select></div>
+            <div class="field"><label for="mus-vocal">Vocal type</label><select id="mus-vocal"><option>Instrumental</option><option>Male vocal</option><option>Female vocal</option><option>Duet</option><option>Choir</option></select></div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="mus-generate-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l16 9-16 9V3z"/></svg>Generate</button>
+            <button class="btn" id="mus-regen-btn">Regenerate</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:14px;">Preview</h3>
+          <div class="waveform" id="mus-waveform"></div>
+          <div class="player" style="margin-top:10px;">
+            <button class="player-play" id="mus-player-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+            <div class="player-mid"><div class="player-track"><span></span></div><div class="player-times"><span>0:00</span><span>0:00</span></div></div>
+          </div>
+          <p class="field-hint" style="margin-top:12px;">Generated tracks are <span class="badge badge-demo">DEMO MODE</span> placeholders until a music provider is connected. Licensing terms always follow that provider's own license — never assumed as royalty-free here.</p>
+          <button class="btn btn-sm" id="mus-download-btn" style="margin-top:6px;">Download</button>
+        </div>
+      </div>
+
+      <div id="music-tab-lyrics" class="workspace" style="display:none;">
+        <div class="card">
+          <div class="field"><label for="lyr-topic">Topic</label><input type="text" id="lyr-topic" placeholder="e.g. Starting a small business"></div>
+          <div class="field-row">
+            <div class="field"><label for="lyr-lang">Language</label><select id="lyr-lang"></select></div>
+            <div class="field"><label for="lyr-mood">Mood</label><select id="lyr-mood"></select></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="lyr-genre">Genre</label><select id="lyr-genre"></select></div>
+            <div class="field"><label for="lyr-structure">Song structure</label><select id="lyr-structure"><option>Intro – Verse – Chorus – Verse – Bridge – Chorus</option><option>Verse – Chorus – Verse – Chorus</option><option>Simple (Verse – Chorus)</option></select></div>
+          </div>
+          <button class="btn btn-primary btn-block" id="lyr-generate-btn">Generate Lyrics</button>
+        </div>
+        <div class="card">
+          <h3 style="font-size:14px;">Lyrics</h3>
+          <textarea id="lyr-output" style="min-height:260px;" placeholder="Generated lyrics appear here — fully editable before sending to Music Studio."></textarea>
+          <button class="btn btn-sm btn-teal" id="lyr-send-btn" style="margin-top:10px;">Use in Music Studio</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== CHARACTER VOICES ============== -->
+    <section class="view" id="view-characters">
+      <div class="workspace">
+        <div class="card">
+          <div class="field"><label for="char-name">Character name</label><input type="text" id="char-name" placeholder="e.g. Elder Storyteller"></div>
+          <div class="field"><label for="char-desc">Voice description</label><textarea id="char-desc" style="min-height:80px;" placeholder="e.g. Ancient wizard with a deep, mysterious voice"></textarea></div>
+          <div class="field">
+            <label>Try an example</label>
+            <div class="chip-select" id="char-examples">
+              <button class="chip">Ancient wizard, deep mysterious voice</button>
+              <button class="chip">Friendly cartoon character</button>
+              <button class="chip">Powerful fantasy warrior</button>
+              <button class="chip">Old storyteller</button>
+              <button class="chip">Robot assistant</button>
+              <button class="chip">Village storyteller</button>
+              <button class="chip">Energetic sports commentator</button>
+              <button class="chip">Calm meditation narrator</button>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="char-age">Age / style</label><input type="text" id="char-age" placeholder="e.g. Elderly"></div>
+            <div class="field"><label for="char-gender">Gender / style</label><input type="text" id="char-gender" placeholder="e.g. Masculine"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="char-emotion">Emotion</label><select id="char-emotion"><option>Neutral</option><option>Warm</option><option>Menacing</option><option>Playful</option><option>Solemn</option><option>Excited</option></select></div>
+            <div class="field"><label for="char-lang">Language</label><select id="char-lang"></select></div>
+          </div>
+          <button class="btn btn-primary btn-block" id="char-generate-btn">Generate Character Voice</button>
+        </div>
+        <div class="card">
+          <h3 style="font-size:14px;">Preview</h3>
+          <div class="player">
+            <button class="player-play" id="char-player-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+            <div class="player-mid"><div class="player-track"><span></span></div><div class="player-times"><span>0:00</span><span>0:00</span></div></div>
+          </div>
+          <button class="btn btn-sm btn-teal btn-block" id="char-save-btn" style="margin-top:14px;">Save to My Voices</button>
+          <div class="section" style="margin-top:20px;">
+            <h3 style="font-size:13.5px;">Saved character voices</h3>
+            <div id="char-voice-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== AUDIO EDITOR ============== -->
+    <section class="view" id="view-editor">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div>
+            <h3 style="font-size:14px;margin-bottom:2px;">Timeline</h3>
+            <p class="field-hint" style="margin:0;">Import audio or record directly, then trim, split and mix.</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <label class="btn btn-sm" for="edit-import" style="cursor:pointer;">Import Audio</label>
+            <input type="file" id="edit-import" accept="audio/*" style="display:none;">
+            <button class="btn btn-sm" id="edit-record-btn">Record</button>
+          </div>
+        </div>
+
+        <div class="timeline" style="margin-top:16px;">
+          <div class="timeline-ruler"><span>00:00</span><span>00:30</span><span>01:00</span><span>01:30</span><span>02:00</span></div>
+          <div class="timeline-track" id="edit-track">
+            <div class="timeline-clip" id="edit-clip"><span></span></div>
+            <div class="timeline-cursor"></div>
+          </div>
+        </div>
+
+        <div class="edit-toolbar">
+          <button class="btn btn-sm" id="edit-play">Play</button>
+          <button class="btn btn-sm" id="edit-pause">Pause</button>
+          <button class="btn btn-sm" id="edit-stop">Stop</button>
+          <span style="width:1px;background:var(--border);align-self:stretch;"></span>
+          <button class="btn btn-sm" id="edit-trim">Trim</button>
+          <button class="btn btn-sm" id="edit-cut">Cut</button>
+          <button class="btn btn-sm" id="edit-split">Split</button>
+          <button class="btn btn-sm" id="edit-merge">Merge</button>
+          <button class="btn btn-sm" id="edit-fadein">Fade In</button>
+          <button class="btn btn-sm" id="edit-fadeout">Fade Out</button>
+          <span style="width:1px;background:var(--border);align-self:stretch;"></span>
+          <button class="btn btn-sm" id="edit-undo">Undo</button>
+          <button class="btn btn-sm" id="edit-redo">Redo</button>
+        </div>
+
+        <div class="field-row">
+          <div class="field"><label>Volume <span class="slider-val" id="edit-volume-val">100%</span></label><input type="range" id="edit-volume" min="0" max="100" value="100"></div>
+          <div class="field"><label>Playback speed</label><select id="edit-speed"><option value="0.5">0.5x</option><option value="0.75">0.75x</option><option value="1" selected>1x</option><option value="1.25">1.25x</option><option value="1.5">1.5x</option><option value="2">2x</option></select></div>
+        </div>
+        <div class="field-row">
+          <div class="field checkbox-row"><input type="checkbox" id="edit-mute"><label for="edit-mute">Mute</label></div>
+          <div class="field checkbox-row"><input type="checkbox" id="edit-noise"><label for="edit-noise">Noise reduction (placeholder)</label></div>
+        </div>
+        <div class="field">
+          <label for="edit-bgmusic">Background music</label>
+          <input type="file" id="edit-bgmusic" accept="audio/*">
+        </div>
+        <button class="btn btn-primary" id="edit-export-btn">Export</button>
+        <p id="edit-status" class="field-hint" style="margin-top:10px;"></p>
+      </div>
+    </section>
+
+    <!-- ============== PROJECTS ============== -->
+    <section class="view" id="view-projects">
+      <div class="section-head">
+        <div class="field-row" style="flex:1;">
+          <div class="field" style="margin:0;"><input type="search" id="proj-search" placeholder="Search projects…"></div>
+          <div class="field" style="margin:0;max-width:170px;">
+            <select id="proj-filter">
+              <option value="">All types</option>
+              <option>Voice</option><option>Speech</option><option>Podcast</option><option>Audiobook</option><option>Dubbing</option><option>Music</option><option>Character</option><option>Audio Edit</option>
+            </select>
+          </div>
+          <div class="field" style="margin:0;max-width:170px;">
+            <select id="proj-sort">
+              <option value="date-desc">Newest first</option>
+              <option value="date-asc">Oldest first</option>
+              <option value="name-asc">Name A–Z</option>
+              <option value="name-desc">Name Z–A</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="proj-new-btn">New Project</button>
+      </div>
+      <div class="grid grid-3" id="proj-grid"></div>
+    </section>
+
+    <!-- ============== SETTINGS ============== -->
+    <section class="view" id="view-settings">
+      <div class="tabs">
+        <button class="tab-btn active" data-stab="profile">Profile</button>
+        <button class="tab-btn" data-stab="app">App</button>
+        <button class="tab-btn" data-stab="api">API Configuration</button>
+        <button class="tab-btn" data-stab="privacy">Privacy &amp; Terms</button>
+        <button class="tab-btn" data-stab="about">About</button>
+      </div>
+
+      <div id="settings-profile" class="card">
+        <div class="field-row">
+          <div class="field"><label for="set-name">Name</label><input type="text" id="set-name" placeholder="Your name"></div>
+          <div class="field"><label for="set-email">Email</label><input type="email" id="set-email" placeholder="you@example.com"></div>
+        </div>
+        <button class="btn btn-primary" id="set-profile-save">Save Profile</button>
+      </div>
+
+      <div id="settings-app" class="card" style="display:none;">
+        <div class="field-row">
+          <div class="field"><label for="set-ui-lang">Interface language</label><select id="set-ui-lang"><option value="en">English</option><option value="hi">हिन्दी (Hindi)</option></select></div>
+          <div class="field"><label for="set-theme">Theme</label><select id="set-theme"><option value="dark">Dark Mode</option><option value="light">Light Mode</option></select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="set-audio-quality">Audio quality</label><select id="set-audio-quality"><option>Standard (44.1kHz)</option><option>High (48kHz)</option><option>Studio (96kHz)</option></select></div>
+          <div class="field"><label for="set-default-speed">Default playback speed</label><select id="set-default-speed"><option>0.5x</option><option>0.75x</option><option selected>1x</option><option>1.25x</option><option>1.5x</option><option>2x</option></select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="set-default-voice">Default voice</label><select id="set-default-voice"></select></div>
+          <div class="field"><label for="set-default-lang">Default language</label><select id="set-default-lang"></select></div>
+        </div>
+        <button class="btn btn-primary" id="set-app-save">Save Preferences</button>
+      </div>
+
+      <div id="settings-api" class="card" style="display:none;">
+        <p style="font-size:13px;">VoiceStudio AI never stores secret API keys in this page's client-side code. Provide a backend base URL that proxies requests to your chosen AI providers.</p>
+        <div class="field"><label for="set-api-base">API_BASE_URL</label><input type="text" id="set-api-base" placeholder="https://your-backend.example.com/api"></div>
+        <div class="checkbox-row" style="margin-bottom:16px;">
+          <input type="checkbox" id="set-demo-mode" checked>
+          <label for="set-demo-mode">Run in DEMO MODE (no backend calls — simulated results only)</label>
+        </div>
+        <button class="btn btn-primary" id="set-api-save">Save API Configuration</button>
+        <p class="field-hint" style="margin-top:12px;">See <code>/api/README.md</code> in the project files for endpoint contracts and how to connect a real provider.</p>
+      </div>
+
+      <div id="settings-privacy" class="card" style="display:none;">
+        <h3 style="font-size:14px;">Privacy</h3>
+        <p style="font-size:13px;">Projects, voice samples and settings are stored locally in your browser (localStorage/IndexedDB) unless you connect cloud storage. Nothing is uploaded unless you connect a backend/API.</p>
+        <h3 style="font-size:14px;">Terms of Use</h3>
+        <p style="font-size:13px;">Only clone or synthesize a voice you have explicit permission to use. Do not use character voices, dubbing or generated speech to impersonate a real person or to mislead an audience. Generated music and voices carry the license terms of the connected provider — this app does not itself grant commercial or royalty-free rights.</p>
+      </div>
+
+      <div id="settings-about" class="card" style="display:none;">
+        <h3 style="font-size:14px;">About VoiceStudio AI</h3>
+        <p style="font-size:13px;">Version 1.0.0 · A provider-agnostic AI audio creation workspace — text to speech, voice cloning, dubbing, podcasts, audiobooks, music and a browser audio editor, all from one interface.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Bottom navigation (mobile) -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="bn-item active" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Home</button>
+  <button class="bn-item" data-view="tts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15V9a1 1 0 0 1 1-1h3l5-4v16l-5-4H5a1 1 0 0 1-1-1z"/></svg>TTS</button>
+  <button class="bn-item" data-view="podcast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 8v8l7-4-7-4z"/></svg>Podcast</button>
+  <button class="bn-item" data-view="projects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>Projects</button>
+  <button class="bn-item bn-more" id="bn-more-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>More</button>
+</nav>
+
+<!-- New project modal -->
+<div class="modal-overlay" id="new-project-modal">
+  <div class="modal">
+    <div class="modal-head"><h3 style="margin:0;font-size:15.5px;">New Project</h3><button class="icon-btn" id="modal-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="field"><label for="np-name">Project name</label><input type="text" id="np-name" placeholder="Untitled project"></div>
+    <div class="field"><label for="np-type">Type</label>
+      <select id="np-type"><option>Voice</option><option>Speech</option><option>Podcast</option><option>Audiobook</option><option>Dubbing</option><option>Music</option><option>Character</option><option>Audio Edit</option></select>
+    </div>
+    <button class="btn btn-primary btn-block" id="np-create">Create Project</button>
+  </div>
+</div>
+
+<div id="toast-root"></div>
+
+<script src="storage.js"></script>
+<script src="audio.js"></script>
+<script src="recorder.js"></script>
+<script src="settings.js"></script>
+<script src="api-client.js"></script>
+<script src="tts-service.js"></script>
+<script src="voice-service.js"></script>
+<script src="dubbing-service.js"></script>
+<script src="podcast-service.js"></script>
+<script src="audiobook-service.js"></script>
+<script src="music-service.js"></script>
+<script src="projects.js"></script>
+<script src="ui.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

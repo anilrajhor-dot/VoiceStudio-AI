@@ -1,0 +1,93 @@
+/* =========================================================
+   VoiceStudio AI — Responsive rules
+   Desktop: fixed left sidebar + right context where used
+   Tablet:  collapsible sidebar (off-canvas)
+   Mobile:  top header + bottom navigation, stacked cards
+   ========================================================= */
+
+/* ---------------- Tablet ---------------- */
+@media (max-width: 1080px){
+  .grid-4{ grid-template-columns: repeat(2,1fr); }
+  .feature-grid{ grid-template-columns: repeat(2,1fr); }
+}
+
+@media (max-width: 900px){
+  :root{ --sidebar-w: 232px; }
+
+  #app-shell{
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "topbar"
+      "main";
+  }
+  .sidebar{
+    position: fixed; left:0; top:0; bottom:0; z-index: 60;
+    transform: translateX(-104%);
+    transition: transform .2s ease;
+    box-shadow: var(--shadow);
+  }
+  .sidebar.open{ transform: translateX(0); }
+  .sidebar-scrim{
+    position: fixed; inset:0; background: rgba(6,7,10,.5); z-index: 55;
+    display:none;
+  }
+  .sidebar-scrim.open{ display:block; }
+  #menu-toggle{ display:flex; }
+}
+
+@media (min-width: 901px){
+  #menu-toggle{ display:none; }
+  .sidebar-scrim{ display:none !important; }
+}
+
+/* ---------------- Mobile ---------------- */
+@media (max-width: 640px){
+  main#view-root{ padding: 18px 14px 96px; }
+  .topbar{ padding: 0 14px; }
+  #view-title{ font-size:16px; }
+
+  .grid-4, .grid-3, .grid-2{ grid-template-columns: 1fr 1fr; }
+  .feature-grid{ grid-template-columns: 1fr; }
+  .workspace{ grid-template-columns: 1fr; }
+  .field-row{ flex-direction:column; }
+  .field-row > .field{ min-width:0; }
+
+  .hero-panel{ padding: 20px 18px; }
+  .hero-panel h1{ font-size: 22px; }
+  .wave-decor{ display:none; }
+
+  .demo-pill span{ display:none; }
+
+  /* Bottom navigation */
+  .bottom-nav{
+    display:flex; position:fixed; left:0; right:0; bottom:0; z-index:40;
+    height: var(--bottomnav-h);
+    background: var(--bg-raised); border-top:1px solid var(--border-soft);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+    justify-content:space-around; align-items:center;
+  }
+  .bn-item{
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    background:none; border:none; color: var(--text-faint); font-size:10px;
+    flex:1; padding:4px 2px; cursor:pointer;
+  }
+  .bn-item svg{ width:19px; height:19px; }
+  .bn-item.active{ color: var(--amber); }
+  .bn-item.bn-more.active{ color: var(--teal); }
+
+  main#view-root{ padding-bottom: calc(var(--bottomnav-h) + 30px); }
+}
+
+@media (min-width: 641px){
+  .bottom-nav{ display:none; }
+}
+
+/* Touch target comfort on small screens */
+@media (pointer: coarse){
+  .btn, .icon-btn, .nav-link, .qa-btn, .chip{ min-height: 40px; }
+  input, select, textarea{ font-size: 16px; } /* avoid iOS zoom-on-focus */
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
