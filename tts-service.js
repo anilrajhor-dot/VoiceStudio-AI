@@ -26,23 +26,36 @@ const VSTtsService = (() => {
     return result;
   }
 
+  /* Safari/iOS has two well-known Web Speech API bugs that cause total silence:
+     1. If nothing keeps a reference to the SpeechSynthesisUtterance, it can be
+        garbage-collected before (or during) speaking — so we hold one here.
+     2. Calling cancel() then speak() in the same tick can race and drop the
+        new utterance — so speak() is deferred one tick after cancel(). */
+  let activeUtterance = null;
+
   /** Real (non-demo) spoken preview using the browser's own speech engine — for quick listening only. */
   function speakPreview({ text, rate = 1, pitch = 0, volume = 1, lang = 'en-US', onEnd }){
     if (!('speechSynthesis' in window)) return false;
     window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text || '');
-    utter.rate = Math.max(0.5, Math.min(2, rate));
-    utter.pitch = Math.max(0, Math.min(2, 1 + pitch/10));
-    utter.volume = Math.max(0, Math.min(1, volume));
-    const voices = window.speechSynthesis.getVoices();
-    const match = voices.find(v => v.lang && v.lang.toLowerCase().startsWith(lang.toLowerCase().slice(0,2)));
-    if (match) utter.voice = match;
-    if (onEnd) utter.onend = onEnd;
-    window.speechSynthesis.speak(utter);
+    setTimeout(() => {
+      const utter = new SpeechSynthesisUtterance(text || '');
+      utter.rate = Math.max(0.5, Math.min(2, rate));
+      utter.pitch = Math.max(0, Math.min(2, 1 + pitch/10));
+      utter.volume = Math.max(0, Math.min(1, volume));
+      const voices = window.speechSynthesis.getVoices();
+      const match = voices.find(v => v.lang && v.lang.toLowerCase().startsWith(lang.toLowerCase().slice(0,2)));
+      if (match) utter.voice = match;
+      utter.onend = () => { activeUtterance = null; if (onEnd) onEnd(); };
+      utter.onerror = () => { activeUtterance = null; };
+      activeUtterance = utter; // keep a live reference so Safari can't garbage-collect it mid-speech
+      window.speechSynthesis.resume(); // clears a stuck "paused" state some browsers leave behind
+      window.speechSynthesis.speak(utter);
+    }, 60);
     return true;
   }
   function stopPreview(){
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    activeUtterance = null;
   }
 
   return { generateSpeech, speakPreview, stopPreview };

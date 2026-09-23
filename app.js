@@ -420,27 +420,33 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!script){ VSUi.toast('Generate or write a script first.','error'); return; }
       if (!('speechSynthesis' in window)){ VSUi.toast('Speech playback isn\u2019t supported in this browser.','error'); return; }
       window.speechSynthesis.cancel();
-      const voices = window.speechSynthesis.getVoices();
-      const lines = script.split('\n').map(l => l.trim()).filter(Boolean);
-      const hostVoiceFor = (label) => {
-        const n = /HOST\s*2/i.test(label) ? 1 : 0; // HOST 1 -> voices[0], HOST 2/others -> voices[1]
-        return voices[n % Math.max(1, voices.length)] || null;
-      };
-      let queue = lines.length ? lines : [script];
-      let i = 0;
-      function speakNext(){
-        if (i >= queue.length) return;
-        const line = queue[i++];
-        const m = line.match(/^([A-Za-z0-9 ]+):\s*(.*)$/);
-        const speaker = m ? m[1] : '';
-        const text = m ? m[2] : line;
-        const utter = new SpeechSynthesisUtterance(text || line);
-        const v = hostVoiceFor(speaker);
-        if (v) utter.voice = v;
-        utter.onend = speakNext;
-        window.speechSynthesis.speak(utter);
-      }
-      speakNext();
+      setTimeout(() => {
+        const voices = window.speechSynthesis.getVoices();
+        const lines = script.split('\n').map(l => l.trim()).filter(Boolean);
+        const hostVoiceFor = (label) => {
+          const n = /HOST\s*2/i.test(label) ? 1 : 0; // HOST 1 -> voices[0], HOST 2/others -> voices[1]
+          return voices[n % Math.max(1, voices.length)] || null;
+        };
+        let queue = lines.length ? lines : [script];
+        let i = 0;
+        let liveUtterance = null; // keep a live reference — Safari can garbage-collect an unreferenced utterance mid-speech
+        function speakNext(){
+          if (i >= queue.length) { liveUtterance = null; return; }
+          const line = queue[i++];
+          const m = line.match(/^([A-Za-z0-9 ]+):\s*(.*)$/);
+          const speaker = m ? m[1] : '';
+          const text = m ? m[2] : line;
+          const utter = new SpeechSynthesisUtterance(text || line);
+          const v = hostVoiceFor(speaker);
+          if (v) utter.voice = v;
+          utter.onend = speakNext;
+          utter.onerror = speakNext;
+          liveUtterance = utter;
+          window.speechSynthesis.speak(utter);
+        }
+        window.speechSynthesis.resume();
+        speakNext();
+      }, 60);
       VSUi.toast('Reading the script aloud with your browser\u2019s voices — real audio, free, alternating by speaker.', 'info', 4000);
     });
   })();
