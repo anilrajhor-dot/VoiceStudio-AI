@@ -21,7 +21,8 @@ const VSUi = (() => {
     characters: ['Character Voices', 'Build a fictional character voice'],
     editor: ['Audio Editor', 'Trim, mix and polish your recordings'],
     projects: ['My Projects', 'Every project, in one place'],
-    settings: ['Settings', 'Profile, app preferences and API configuration']
+    settings: ['Settings', 'Profile, app preferences and API configuration'],
+    help: ['Help', 'How to use every part of VoiceStudio AI']
   };
 
   let currentView = 'dashboard';

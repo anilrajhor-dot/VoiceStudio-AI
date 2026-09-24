@@ -1003,6 +1003,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   })();
 
+  /* =========================================================
+     HELP
+     ========================================================= */
+  (function initHelp(){
+    const search = document.getElementById('help-search');
+    const items = Array.from(document.querySelectorAll('#help-topics .help-item'));
+    search.addEventListener('input', () => {
+      const q = search.value.trim().toLowerCase();
+      items.forEach(item => {
+        const match = !q || item.textContent.toLowerCase().includes(q);
+        item.style.display = match ? '' : 'none';
+        if (q && match) item.open = true;
+      });
+    });
+  })();
+
   /* ================= Helpers ================= */
   function showError(el, msg){ el.textContent = msg; el.className = 'field-hint err-text'; }
   function downloadBlobUrl(url, filename){

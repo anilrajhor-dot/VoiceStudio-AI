@@ -91,6 +91,7 @@
       <ul class="nav-list">
         <li><button class="nav-link" data-view="projects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>My Projects</button></li>
         <li><button class="nav-link" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 9 19.36a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.64 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.64 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.64a1.7 1.7 0 0 0 1-1.55V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.36 9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>Settings</button></li>
+        <li><button class="nav-link" data-view="help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-1.5 2-2 2.5-.4.4-.5.8-.5 1.5"/><circle cx="12" cy="17" r="0.5" fill="currentColor" stroke="none"/></svg>Help</button></li>
       </ul>
     </div>
 
@@ -728,6 +729,156 @@
         <h3 style="font-size:14px;">About VoiceStudio AI</h3>
         <p style="font-size:13px;">Version 1.0.0 · A provider-agnostic AI audio creation workspace — text to speech, voice cloning, dubbing, podcasts, audiobooks, music and a browser audio editor, all from one interface.</p>
         <p style="font-size:13px;color:var(--text-dim);">App developed by <strong>Anil Sharma</strong>, Former General Manager, Central Bank of India.</p>
+      </div>
+    </section>
+
+    <!-- ============== HELP ============== -->
+    <section class="view" id="view-help">
+      <div class="field help-search">
+        <input type="search" id="help-search" placeholder="Search help topics…">
+      </div>
+
+      <div class="card" style="margin-bottom:20px;background:var(--amber-wash);border-color:rgba(255,176,32,.25);">
+        <strong style="color:var(--amber);font-size:13.6px;">Quick start</strong>
+        <ol style="margin:8px 0 0;padding-left:20px;font-size:13px;">
+          <li>Pick a studio from the sidebar (or the quick actions on Dashboard).</li>
+          <li>Fill in the fields and tap the main action button (Generate, Split into Chapters, etc.).</li>
+          <li>Use <strong>Play</strong>, <strong>Preview</strong>, or <strong>🔊 Listen (free)</strong> to hear the result, and <strong>Download</strong>/<strong>Export</strong> to save it.</li>
+          <li>Everything you generate is automatically saved to <strong>My Projects</strong>.</li>
+        </ol>
+      </div>
+
+      <div id="help-topics">
+        <details class="help-item" open>
+          <summary>What is DEMO MODE, and why do some sounds sound like a beep?</summary>
+          <div class="help-body">
+            <p>This app is built to work fully offline with <strong>no AI subscription required</strong>. Until you connect a paid AI provider (Settings → API Configuration), every "Generate" action returns a short placeholder tone instead of real AI-generated speech or music — clearly labeled <strong>DEMO MODE</strong> everywhere it appears. This is intentional: the app never pretends a placeholder is real AI output.</p>
+            <p>Buttons labeled <strong>🔊 Listen (free)</strong> are different — those genuinely speak using your phone's own built-in voice (no placeholder, no provider needed), so you can hear real, real-time narration for free.</p>
+          </div>
+        </details>
+
+        <details class="help-item">
+          <summary>Text to Speech — how do I use it?</summary>
+          <div class="help-body">
+            <p>Go to <strong>Text to Speech</strong>, type or paste your script, choose a language and voice category, and adjust speed/pitch/volume/emotion if you like.</p>
+            <ul>
+              <li><strong>Preview</strong> — speaks it right now using your browser's real voice engine. Genuinely real, free.</li>
+              <li><strong>Generate Speech</strong> — creates a saved audio clip added to your player and My Projects (a DEMO placeholder tone unless a provider is connected).</li>
+              <li><strong>Download</strong> — saves the generated clip as a file.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="help-item">
+          <summary>Voice Cloning — how do I clone a voice?</summary>
+          <div class="help-body">
+            <p>You must have the speaker's permission — the app won't proceed without it.</p>
+            <ol>
+              <li>Choose <strong>Upload audio</strong> or <strong>Record voice</strong> (record needs microphone permission).</li>
+              <li>Give the voice a name and description, choose a language.</li>
+              <li>Tick the consent checkbox — <strong>Create Voice</strong> stays greyed out until you do.</li>
+              <li>Tap <strong>Create Voice</strong>. In DEMO MODE this saves a voice profile with no audio yet (real cloned audio needs a paid provider).</li>
+            </ol>
+            <p>Use <strong>Download sample</strong> anytime to save your raw recording as a real file, independent of cloning.</p>
+          </div>
+        </details>
+
+        <details class="help-item">
+          <summary>AI Dubbing — how does it work?</summary>
+          <div class="help-body">
+            <p>Upload an audio or video file, pick a target language and voice, then tap <strong>Start Dubbing</strong>. The app walks through Upload → Transcribe → Translate → Voice → Sync → Finalise, and plays/saves the result. Real transcription and translation require a connected provider — otherwise these steps use labeled DEMO placeholder text and audio.</p>
+          </div>
+        </details>
+
+        <details class="help-item">
+          <summary>Podcast Studio — how do I make an episode?</summary>
+          <div class="help-body">
+            <ol>
+              <li>Fill in title, topic, description, number of speakers, and style.</li>
+              <li>Tap <strong>Generate Outline</strong>, then <strong>Generate Script</strong> — edit the text freely.</li>
+              <li>Tap <strong>🔊 Listen (free)</strong> to hear it read aloud right now with two alternating browser voices for HOST 1 / HOST 2 — genuinely real and free. Use <strong>⏸ Pause</strong> / <strong>⏹ Stop</strong> to control playback.</li>
+              <li>Tap <strong>Generate Audio</strong> to save an episode file to My Projects (DEMO placeholder unless a provider is connected).</li>
+            </ol>
+          </div>
+        </details>
+
+        <details class="help-item">
+          <summary>Audiobook Studio — can I upload a PDF or eBook?</summary>
+          <div class="help-body">
+            <p>Yes — <strong>text-based</strong> PDFs work directly:</p>
+            <ol>
+              <li>Tap <strong>Upload TXT / PDF / DOCX</strong> and choose your PDF — the app extracts the real text automatically (free, in your browser, via pdf.js).</li>
+              <li>Tap <strong>Split into Chapters</strong>.</li>
+              <li>Tap <strong>🔊 Listen (free)</strong> on any chapter to hear it read aloud for real, right now. <strong>⏸ Pause</strong> / <strong>⏹ Stop</strong> control playback.</li>
+              <li><strong>Generate</strong>/<strong>Generate All</strong> then <strong>Combine Chapters</strong> saves a full audiobook to My Projects (DEMO placeholder audio unless a provider is connected).</li>
+              <li><strong>🗑 Delete Book</strong> clears the current manuscript so you can start a different one.</li>
+            </ol>
+            <p><strong>Scanned/photo PDFs won't work</strong> — only PDFs with real selectable text. DOCX and EPUB aren't supported yet; convert to PDF or TXT first.</p>
+          </div>
+        </details>
+
+        <details class="help-item">
+          <summary>Music Studio & Lyrics — how do I use them?</summary>
+          <div class="help-body">
+            <p>In <strong>Lyric Generator</strong>, describe a topic/mood/genre and tap <strong>Generate Lyrics</strong>; tap <strong>Use in Music Studio</strong> to send them across. In <strong>Music</strong>, set genre/mood/tempo/duration and tap <strong>Generate</strong>. Real composed music requires a connected provider — DEMO MODE gives a short placeholder clip, and never claims royalty-free or commercial rights on your behalf.</p>
+          </div>
+        </details>
+
+        <details class="help-item">
+          <summary>Character Voices — how do I create a fictional voice?</summary>
+          <div class="help-body">
+            <p>Describe the character (or tap one of the example chips), then:</p>
+            <ul>
+              <li><strong>🔊 Listen (free, browser voice)</strong> — reads a sample line right now using your phone's own voice, nudged by words in your description (e.g. "deep," "child," "robot"). Real and free.</li>
+              <li><strong>Generate Character Voice</strong> — saves a DEMO placeholder clip unless a provider is connected.</li>
+              <li><strong>Save to My Voices</strong> — keeps it in your voice library for reuse.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="help-item">
+          <summary>Audio Editor — what actually works here?</summary>
+          <div class="help-body">
+            <p>Import a file or record directly. These are genuinely real, not placeholders:</p>
+            <ul>
+              <li><strong>Trim</strong> — automatically trims silence from the start/end.</li>
+              <li><strong>Fade In / Fade Out</strong> — real gain envelope applied to your actual audio.</li>
+              <li><strong>Export</strong> — downloads a real WAV file with your volume level baked in.</li>
+            </ul>
+            <p><strong>Cut / Split / Merge</strong> need a range-selection tool this build doesn't have yet — tapping them says so honestly rather than pretending to work.</p>
+          </div>
+        </details>
+
+        <details class="help-item">
+          <summary>My Projects — Play/Export isn't working on some cards</summary>
+          <div class="help-body">
+            <p>Anything you genuinely generate (speech, podcast episode, audiobook, music, audio edit) is saved for real and Play/Export will work on it, including after reopening the app.</p>
+            <p>A few sample cards (Morning Motivation, Business Podcast, etc.) are demo placeholders that never had real audio — Play will honestly tell you that rather than doing nothing silently.</p>
+            <p>Use the <strong>•••</strong> menu on any card to delete it.</p>
+          </div>
+        </details>
+
+        <details class="help-item">
+          <summary>Settings — what should I check first?</summary>
+          <div class="help-body">
+            <ul>
+              <li><strong>App tab → Check available voices</strong> — shows exactly which languages your phone can speak for free right now (useful for Hindi/regional languages).</li>
+              <li><strong>API Configuration</strong> — where you'd connect a real paid AI provider later. Optional — the app works fully without it.</li>
+              <li>No API key is ever stored in this page's code, in DEMO MODE or otherwise.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="help-item">
+          <summary>Nothing plays / no sound at all — what do I check?</summary>
+          <div class="help-body">
+            <ol>
+              <li>Check your phone's physical silent/mute switch, and volume.</li>
+              <li>Confirm the DEMO MODE pill isn't hiding an actual error — check Settings → App → Check available voices to confirm your device has speech voices at all.</li>
+              <li>Very long text can occasionally interrupt on some browsers — try a shorter chapter/section first.</li>
+            </ol>
+          </div>
+        </details>
       </div>
     </section>
 
