@@ -621,6 +621,24 @@ document.addEventListener('DOMContentLoaded', () => {
       VSUi.toast(res.demo ? 'Audiobook combined (DEMO MODE placeholder audio).' : 'Audiobook combined.', 'success');
     });
 
+    // Clears the manuscript/chapters currently being worked on, so you can start a different book.
+    // (To delete an already-saved audiobook project, use the "..." menu on its card in My Projects.)
+    document.getElementById('ab-delete-btn').addEventListener('click', () => {
+      if (!chapters.length && !document.getElementById('ab-text').value.trim()){
+        VSUi.toast('Nothing to delete — the workspace is already empty.', 'info'); return;
+      }
+      if (!confirm('Clear this manuscript and all its chapters? This cannot be undone.')) return;
+      VSTtsService.stopPreview(); hideReadingControls();
+      chapters.forEach(c => { if (c.audioUrl) URL.revokeObjectURL(c.audioUrl); });
+      chapters = [];
+      document.getElementById('ab-title').value = '';
+      document.getElementById('ab-author').value = '';
+      document.getElementById('ab-text').value = '';
+      document.getElementById('ab-file').value = '';
+      renderChapters();
+      VSUi.toast('Book cleared — ready for a new one.', 'success');
+    });
+
     renderChapters();
   })();
 
@@ -964,6 +982,24 @@ document.addEventListener('DOMContentLoaded', () => {
       VSSettings.update({ apiBaseUrl: document.getElementById('set-api-base').value.trim(), demoMode: document.getElementById('set-demo-mode').checked });
       updateDemoPill();
       VSUi.toast('API configuration saved','success');
+    });
+
+    // Lists the ACTUAL voices installed on this device/browser — the real, honest answer to
+    // "which languages can Listen (free) speak", since that's controlled by the OS, not this app.
+    document.getElementById('set-check-voices-btn').addEventListener('click', () => {
+      const listEl = document.getElementById('set-voices-list');
+      function render(){
+        const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+        if (!voices.length){ listEl.innerHTML = '<span class="err-text">No voices reported yet — try tapping the button again in a second.</span>'; return; }
+        const langs = {};
+        voices.forEach(v => { (langs[v.lang] = langs[v.lang] || []).push(v.name); });
+        const rows = Object.keys(langs).sort().map(lang =>
+          `<div style="padding:4px 0;border-bottom:1px solid var(--border-soft);"><strong>${lang}</strong> — ${langs[lang].join(', ')}</div>`
+        ).join('');
+        listEl.innerHTML = `<div style="max-height:220px;overflow-y:auto;">${rows}</div><p class="field-hint" style="margin-top:8px;">${voices.length} voice${voices.length!==1?'s':''} found. Indian-language codes to look for: hi-IN (Hindi), ta-IN (Tamil), te-IN (Telugu), mr-IN (Marathi), bn-IN (Bengali), gu-IN (Gujarati), kn-IN (Kannada), ml-IN (Malayalam), pa-IN (Punjabi), ur-IN/ur-PK (Urdu). If a language isn\u2019t listed here, this device can\u2019t speak it for free — only a paid provider could.</p>`;
+      }
+      render();
+      if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = render;
     });
   })();
 

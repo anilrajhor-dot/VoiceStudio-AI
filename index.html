@@ -470,6 +470,7 @@
               <button class="btn btn-sm" id="ab-pause-btn" style="display:none;">⏸ Pause</button>
               <button class="btn btn-sm" id="ab-stop-btn" style="display:none;">⏹ Stop</button>
               <button class="btn btn-sm btn-teal" id="ab-generate-all-btn">Generate All</button>
+              <button class="btn btn-sm btn-danger" id="ab-delete-btn">🗑 Delete Book</button>
             </div>
           </div>
           <div id="ab-chapter-list"><div class="empty-state">Split your manuscript to see chapters here.</div></div>
@@ -696,6 +697,13 @@
           <div class="field"><label for="set-default-lang">Default language</label><select id="set-default-lang"></select></div>
         </div>
         <button class="btn btn-primary" id="set-app-save">Save Preferences</button>
+
+        <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--border-soft);">
+          <h3 style="font-size:13.5px;">Free browser voices on this device</h3>
+          <p class="field-hint" style="margin-bottom:10px;">The "Listen (free)" buttons use your phone's own built-in voices — which languages that covers depends on your device, not this app. Check what's actually installed:</p>
+          <button class="btn btn-sm" id="set-check-voices-btn">🔊 Check available voices on this device</button>
+          <div id="set-voices-list" style="margin-top:12px;font-size:12.5px;color:var(--text-dim);"></div>
+        </div>
       </div>
 
       <div id="settings-api" class="card" style="display:none;">
