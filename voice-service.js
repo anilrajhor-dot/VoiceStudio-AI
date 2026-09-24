@@ -50,7 +50,7 @@ const VSVoiceService = (() => {
           description: opts.description || '',
           language: opts.language || 'English',
           category: 'Character',
-          audioUrl: URL.createObjectURL(blob),
+          audioUrl: URL.createObjectURL(blob), blob,
           durationSec
         };
       }

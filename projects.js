@@ -12,7 +12,9 @@ const VSProjects = (() => {
 
   function all(){ return VSStorage.getProjects(); }
 
-  function create({ name, type, durationSec = 0, status = 'Ready', meta = {} }){
+  /** audioBlob: the real generated/recorded audio, saved to IndexedDB so Play works later —
+      even after a page reload, unlike a blob: object URL, which dies with the page. */
+  function create({ name, type, durationSec = 0, status = 'Ready', meta = {}, audioBlob = null, remoteAudioUrl = null }){
     const list = all();
     const project = {
       id: uid('proj'),
@@ -21,10 +23,14 @@ const VSProjects = (() => {
       createdAt: Date.now(),
       durationSec,
       status, // Ready | Draft | Processing
-      meta
+      meta: Object.assign({}, meta, {
+        hasAudio: !!(audioBlob || remoteAudioUrl),
+        remoteAudioUrl: remoteAudioUrl || null
+      })
     };
     list.unshift(project);
     VSStorage.setProjects(list);
+    if (audioBlob) VSStorage.putBlob(project.id, audioBlob); // fire-and-forget; Play reads it back on demand
     return project;
   }
 
@@ -66,13 +72,16 @@ const VSProjects = (() => {
   /* ---------------- Voices ---------------- */
   function allVoices(){ return VSStorage.getVoices(); }
   function addVoice(voice){
+    const { audioBlob, remoteAudioUrl, ...rest } = voice;
     const list = allVoices();
-    const v = Object.assign({ id: uid('voice'), createdAt: Date.now() }, voice);
+    const v = Object.assign({ id: uid('voice'), createdAt: Date.now() }, rest, { hasAudio: !!(audioBlob || remoteAudioUrl), remoteAudioUrl: remoteAudioUrl || null });
     list.unshift(v);
     VSStorage.setVoices(list);
+    if (audioBlob) VSStorage.putBlob(v.id, audioBlob);
     return v;
   }
   function removeVoice(id){
+    VSStorage.deleteBlob(id);
     VSStorage.setVoices(allVoices().filter(v => v.id !== id));
   }
 

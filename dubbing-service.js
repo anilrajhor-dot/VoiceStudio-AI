@@ -39,7 +39,7 @@ const VSDubbingService = (() => {
       payload: { translatedText, targetVoiceId, targetLanguage },
       simulate: async () => {
         const blob = await VSAudio.synthesizePlaceholderTone(durationSec, { freq: 180, variant: 3 });
-        return { audioUrl: URL.createObjectURL(blob), durationSec };
+        return { audioUrl: URL.createObjectURL(blob), blob, durationSec };
       },
       minDelay: 900, maxDelay: 1600
     });

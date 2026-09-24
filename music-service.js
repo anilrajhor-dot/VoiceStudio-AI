@@ -14,7 +14,7 @@ const VSMusicService = (() => {
       payload: opts,
       simulate: async () => {
         const blob = await VSAudio.synthesizePlaceholderTone(durationSec, { freq: 130 + (opts.tempo||100)/2, variant: 0 });
-        return { audioUrl: URL.createObjectURL(blob), durationSec, licenseNote: 'DEMO MODE placeholder — no license implied. A connected provider\'s own terms govern real generated tracks.' };
+        return { audioUrl: URL.createObjectURL(blob), blob, durationSec, licenseNote: 'DEMO MODE placeholder — no license implied. A connected provider\'s own terms govern real generated tracks.' };
       },
       minDelay: 1200, maxDelay: 2000
     });

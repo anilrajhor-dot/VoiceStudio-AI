@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('tts-add-project').addEventListener('click', () => {
       if (!lastResult){ VSUi.toast('Generate speech first.','error'); return; }
-      VSProjects.create({ name: (textEl.value.slice(0,32)||'Speech') , type:'Speech', durationSec: lastResult.durationSec||2 });
+      VSProjects.create({ name: (textEl.value.slice(0,32)||'Speech') , type:'Speech', durationSec: lastResult.durationSec||2, audioBlob: lastResult.blob });
       VSUi.toast('Added to My Projects','success');
     });
 
@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       if (!res.ok){ showError(status, res.error || 'Unable to create voice. Please try again.'); createBtn.disabled = false; return; }
       const d = res.data;
-      VSProjects.addVoice({ name:d.name, description:d.description, language:d.language, category:'Cloned', audioUrl:d.previewUrl });
+      VSProjects.addVoice({ name:d.name, description:d.description, language:d.language, category:'Cloned', remoteAudioUrl:d.previewUrl });
       document.dispatchEvent(new CustomEvent('vs:voices-changed'));
       status.innerHTML = res.demo
         ? 'Voice profile created in <span class="badge badge-demo">DEMO MODE</span> — connect a voice-cloning provider in Settings to generate a real cloned-voice preview.'
@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setStep('final','active'); await VSApiClient.delay(400); markDone('final');
 
       player.load(dub.data.audioUrl);
-      VSProjects.create({ name: `Dubbed — ${uploadedFileName}`, type:'Dubbing', durationSec: dub.data.durationSec||3 });
+      VSProjects.create({ name: `Dubbed — ${uploadedFileName}`, type:'Dubbing', durationSec: dub.data.durationSec||3, audioBlob: dub.data.blob });
       VSUi.toast(dub.demo ? 'Dubbing complete (DEMO MODE placeholder audio).' : 'Dubbing complete.', 'success');
       btn.disabled = false;
     });
@@ -403,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await VSPodcastService.generatePodcastAudio(Object.assign(collectOpts(), { script: scriptOut.value }));
       btn.disabled = false;
       if (!res.ok){ VSUi.toast(res.error,'error'); return; }
-      const proj = VSProjects.create({ name: document.getElementById('pod-title').value || 'Untitled Podcast', type:'Podcast', durationSec: res.data.durationSec||60 });
+      const proj = VSProjects.create({ name: document.getElementById('pod-title').value || 'Untitled Podcast', type:'Podcast', durationSec: res.data.durationSec||60, audioBlob: res.data.blob });
       VSUi.toast(res.demo ? 'Episode audio generated (DEMO MODE placeholder).' : 'Episode audio generated.', 'success');
       VSUi.renderDashboard();
       window._vsLastPodcastAudio = res.data.audioUrl;
@@ -616,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
         author: document.getElementById('ab-author').value, narratorVoiceId: document.getElementById('ab-narrator').value
       });
       if (!res.ok){ VSUi.toast(res.error,'error'); return; }
-      VSProjects.create({ name: res.data.title, type:'Audiobook', durationSec: res.data.durationSec||60 });
+      VSProjects.create({ name: res.data.title, type:'Audiobook', durationSec: res.data.durationSec||60, audioBlob: res.data.blob });
       VSUi.renderDashboard();
       VSUi.toast(res.demo ? 'Audiobook combined (DEMO MODE placeholder audio).' : 'Audiobook combined.', 'success');
     });
@@ -671,7 +671,7 @@ document.addEventListener('DOMContentLoaded', () => {
       lastMusic = res.data;
       player.load(res.data.audioUrl);
       VSAudio.renderStaticWaveform(document.getElementById('mus-waveform'), { seed: opts.description||'music', bars:56 });
-      VSProjects.create({ name: opts.description.slice(0,32) || 'Untitled Track', type:'Music', durationSec: res.data.durationSec||30 });
+      VSProjects.create({ name: opts.description.slice(0,32) || 'Untitled Track', type:'Music', durationSec: res.data.durationSec||30, audioBlob: res.data.blob });
       VSUi.renderDashboard();
       VSUi.toast(res.demo ? 'Track generated (DEMO MODE placeholder — see licensing note).' : 'Track generated.', 'success');
     }
@@ -752,7 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('char-save-btn').addEventListener('click', () => {
       if (!lastVoice){ VSUi.toast('Generate a character voice first.','error'); return; }
-      VSProjects.addVoice({ name:lastVoice.name, description:lastVoice.description, language:lastVoice.language, category:'Character', audioUrl:lastVoice.audioUrl });
+      VSProjects.addVoice({ name:lastVoice.name, description:lastVoice.description, language:lastVoice.language, category:'Character', audioBlob:lastVoice.blob });
       document.dispatchEvent(new CustomEvent('vs:voices-changed'));
       renderCharList();
       VSUi.renderVoiceStudioVoices();
@@ -938,7 +938,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const blob = VSAudio.audioBufferToWavBlob(exportBuffer);
       const url = URL.createObjectURL(blob);
       downloadBlobUrl(url, 'voicestudio-edit.wav');
-      VSProjects.create({ name:'Audio Edit', type:'Audio Edit', durationSec: VSAudio.bufferDuration(exportBuffer) });
+      VSProjects.create({ name:'Audio Edit', type:'Audio Edit', durationSec: VSAudio.bufferDuration(exportBuffer), audioBlob: blob });
       VSUi.renderDashboard();
       setStatus('Exported — real WAV file, your actual edited audio.', 'success-text');
     });

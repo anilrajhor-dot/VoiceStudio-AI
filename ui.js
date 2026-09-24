@@ -186,18 +186,52 @@ const VSUi = (() => {
   }
 
   function wireProjectCardActions(root){
-    root.querySelectorAll('.proj-play-btn').forEach(b => b.addEventListener('click', () => toast('Opening project preview…','info')));
+    root.querySelectorAll('.proj-play-btn').forEach(b => b.addEventListener('click', async () => {
+      const p = VSProjects.all().find(x=>x.id===b.dataset.id);
+      if (!p) return;
+      if (p.meta && p.meta.remoteAudioUrl){
+        new Audio(p.meta.remoteAudioUrl).play().catch(() => toast('Could not play this project\u2019s audio.', 'error'));
+        return;
+      }
+      if (!p.meta || !p.meta.hasAudio){
+        toast(p.status === 'Draft' ? 'This project isn\u2019t finished generating yet.' : 'No audio is attached to this project — it may be a demo entry, or was created before audio saving was added.', 'info', 4000);
+        return;
+      }
+      const blob = await VSStorage.getBlob(p.id);
+      if (!blob){ toast('This project\u2019s audio couldn\u2019t be found — it may have been cleared from this browser.', 'error'); return; }
+      new Audio(URL.createObjectURL(blob)).play().catch(() => toast('Could not play this project\u2019s audio.', 'error'));
+    }));
     root.querySelectorAll('.proj-rename-btn').forEach(b => b.addEventListener('click', () => {
       const p = VSProjects.all().find(x=>x.id===b.dataset.id);
       if (!p) return;
       const name = prompt('Rename project', p.name);
       if (name && name.trim()){ VSProjects.update(p.id, { name: name.trim() }); renderDashboard(); renderProjectsView(); toast('Project renamed','success'); }
     }));
-    root.querySelectorAll('.proj-export-btn').forEach(b => b.addEventListener('click', () => toast('Export ready — check your downloads','success')));
+    root.querySelectorAll('.proj-export-btn').forEach(b => b.addEventListener('click', async () => {
+      const p = VSProjects.all().find(x=>x.id===b.dataset.id);
+      if (!p) return;
+      if (p.meta && p.meta.remoteAudioUrl){
+        const a = document.createElement('a'); a.href = p.meta.remoteAudioUrl; a.download = p.name.replace(/\s+/g,'_')+'.mp3';
+        document.body.appendChild(a); a.click(); a.remove();
+        toast('Export ready — check your downloads','success');
+        return;
+      }
+      if (!p.meta || !p.meta.hasAudio){
+        toast(p.status === 'Draft' ? 'This project isn\u2019t finished generating yet.' : 'No audio is attached to this project to export.', 'info', 4000);
+        return;
+      }
+      const blob = await VSStorage.getBlob(p.id);
+      if (!blob){ toast('This project\u2019s audio couldn\u2019t be found — it may have been cleared from this browser.', 'error'); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = p.name.replace(/\s+/g,'_')+'.wav';
+      document.body.appendChild(a); a.click(); a.remove();
+      toast('Export ready — check your downloads','success');
+    }));
     root.querySelectorAll('.proj-menu-btn').forEach(b => b.addEventListener('click', () => {
       const p = VSProjects.all().find(x=>x.id===b.dataset.id);
       if (!p) return;
       if (confirm(`Delete "${p.name}"? This cannot be undone.`)){
+        VSStorage.deleteBlob(p.id);
         VSProjects.remove(p.id); renderDashboard(); renderProjectsView(); toast('Project deleted','info');
       }
     }));
@@ -235,10 +269,13 @@ const VSUi = (() => {
     </div>`;
   }
   function wireVoiceCardActions(root){
-    root.querySelectorAll('.voice-preview-btn').forEach(b => b.addEventListener('click', () => {
+    root.querySelectorAll('.voice-preview-btn').forEach(b => b.addEventListener('click', async () => {
       const v = VSProjects.allVoices().find(x=>x.id===b.dataset.id);
-      if (v && v.audioUrl){ const a = new Audio(v.audioUrl); a.play().catch(()=>{}); }
-      else toast('No preview audio available for this voice.','info');
+      if (!v || !v.hasAudio){ toast('No preview audio available for this voice.','info'); return; }
+      if (v.remoteAudioUrl){ new Audio(v.remoteAudioUrl).play().catch(() => toast('Could not play this voice.','error')); return; }
+      const blob = await VSStorage.getBlob(v.id);
+      if (!blob){ toast('This voice\u2019s audio couldn\u2019t be found — it may have been cleared from this browser.','error'); return; }
+      new Audio(URL.createObjectURL(blob)).play().catch(() => toast('Could not play this voice.','error'));
     }));
     root.querySelectorAll('.voice-delete-btn').forEach(b => b.addEventListener('click', () => {
       VSProjects.removeVoice(b.dataset.id);

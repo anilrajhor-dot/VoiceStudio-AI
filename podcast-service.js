@@ -45,7 +45,7 @@ HOST 2: That's a great point. [DEMO MODE script — connect a language provider 
       payload: opts,
       simulate: async () => {
         const blob = await VSAudio.synthesizePlaceholderTone(durationSec, { freq: 150, variant: 0 });
-        return { audioUrl: URL.createObjectURL(blob), durationSec };
+        return { audioUrl: URL.createObjectURL(blob), blob, durationSec };
       },
       minDelay: 1000, maxDelay: 1800
     });

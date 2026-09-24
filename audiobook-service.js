@@ -42,7 +42,7 @@ const VSAudiobookService = (() => {
       payload: { title, body, narratorVoiceId, language, speed },
       simulate: async () => {
         const blob = await VSAudio.synthesizePlaceholderTone(durationSec, { freq: 190, variant: 1 });
-        return { audioUrl: URL.createObjectURL(blob), durationSec };
+        return { audioUrl: URL.createObjectURL(blob), blob, durationSec };
       },
       minDelay: 500, maxDelay: 1100
     });
@@ -55,7 +55,7 @@ const VSAudiobookService = (() => {
       payload: { chapterCount: chapters.length, title, author, narratorVoiceId },
       simulate: async () => {
         const blob = await VSAudio.synthesizePlaceholderTone(Math.min(12, totalSec), { freq: 170, variant: 2 });
-        return { audioUrl: URL.createObjectURL(blob), durationSec: totalSec, title, author };
+        return { audioUrl: URL.createObjectURL(blob), blob, durationSec: totalSec, title, author };
       },
       minDelay: 900, maxDelay: 1700
     });
